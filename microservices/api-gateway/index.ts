@@ -52,10 +52,18 @@ function forwardApiVersion(req: express.Request, res: express.Response, next: ex
 }
 
 app.get('/health', async (req, res) => {
-  const health = await Promise.all(
+  // Check gateway health (memory, redis, etc.)
+  const gatewayHealth = await healthCheck.checkHealth(
+    async () => true, // Gateway has no DB
+    async () => redis.status === 'ready',
+    process.env.npm_package_version || '1.0.0'
+  );
+
+  // Check downstream services
+  const downstream = await Promise.all(
     Object.entries(services).map(async ([name, url]) => {
       try {
-        const response = await upstreamClient.get(`${url}/health`, { timeout: 1500 });
+        const response = await axios.get(`${url}/health`, { timeout: 1500 });
         return { service: name, status: response.status < 500 ? 'UP' : 'DEGRADED' };
       } catch {
         return { service: name, status: 'DOWN' };
@@ -63,7 +71,20 @@ app.get('/health', async (req, res) => {
     })
   );
 
-  res.json({ gateway: 'UP', services: health });
+  const allUp = gatewayHealth.status === 'UP' && downstream.every(s => s.status === 'UP');
+  const status = allUp ? 'UP' : 'DEGRADED';
+
+  res.status(status === 'UP' ? 200 : 503).json({
+    status,
+    gateway: gatewayHealth,
+    services: downstream
+  });
+});
+
+// Feature Flag Middleware
+app.use(async (req, res, next) => {
+  (req as any).featureFlags = featureFlags;
+  next();
 });
 
 app.use('/api', forwardApiVersion);
