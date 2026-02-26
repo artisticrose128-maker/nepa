@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { PaymentFormData } from '../types';
-import { 
-  validateMeterNumber, 
-  validateAmount, 
-  formatMeterId, 
+import {
+  validateMeterNumber,
+  validateAmount,
+  formatMeterId,
   sanitizeAmount,
   VALIDATION_RULES
 } from '../utils/validation';
+import { usePaymentSocket } from '../hooks/usePaymentSocket';
 
 interface FormErrors {
   destination?: string;
@@ -25,6 +26,7 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
     destination: false,
     amount: false
   });
+  const { isConnected, paymentStatus, setPaymentStatus } = usePaymentSocket();
 
   // Validation functions using utilities
   const validateMeterId = (meterId: string): string | undefined => {
@@ -40,7 +42,7 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
       destination: validateMeterId(form.destination),
       amount: validateAmountField(form.amount)
     };
-    
+
     setErrors(newErrors);
     return !newErrors.destination && !newErrors.amount;
   };
@@ -76,10 +78,10 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Mark all fields as touched
     setTouched({ destination: true, amount: true });
-    
+
     if (validateForm()) {
       onSubmit({
         destination: form.destination.trim(),
@@ -96,7 +98,7 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
 
   return (
     <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto px-3 sm:px-4 lg:px-6">
-      <form 
+      <form
         onSubmit={handleSubmit}
         className="space-y-4 sm:space-y-6 bg-white shadow-lg rounded-xl p-4 sm:p-6 md:p-8 lg:p-10"
       >
@@ -105,33 +107,65 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Make Payment
           </h2>
-          <p className="text-sm sm:text-base text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600 mb-2">
             Enter your meter details and payment amount
           </p>
+          {isConnected && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+              <span className="w-2 h-2 mr-1 bg-green-500 rounded-full animate-pulse"></span>
+              Live Updates Active
+            </span>
+          )}
         </div>
+
+        {/* Real-time Notification */}
+        {paymentStatus && (
+          <div className={`p-4 rounded-lg mb-4 ${paymentStatus.type === 'success' || paymentStatus.type === 'bill_status' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'} border flex justify-between items-start`}>
+            <div>
+              <p className="font-bold">
+                {paymentStatus.type === 'success' ? 'Payment Successful!' :
+                  paymentStatus.type === 'bill_status' ? 'Bill Status Update' :
+                    'Payment Failed'}
+              </p>
+              <p className="text-sm mt-1">
+                {paymentStatus.type === 'success'
+                  ? `Amount: ₦${paymentStatus.data.amount} for Bill ID: ${paymentStatus.data.billId || 'N/A'}`
+                  : paymentStatus.type === 'bill_status'
+                    ? paymentStatus.data.message
+                    : `Error: ${paymentStatus.data.error || 'Unknown error occurred'}`}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPaymentStatus(null)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         {/* Form Fields */}
         <div className="space-y-5">
           {/* Meter Number Field */}
           <div>
-            <label 
+            <label
               htmlFor="meter-number"
               className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2"
             >
               Meter Number <span className="text-red-500">*</span>
             </label>
-            <input 
+            <input
               id="meter-number"
               type="text"
               placeholder="METER-123"
               value={form.destination}
               onChange={e => handleMeterIdChange(e.target.value)}
               onBlur={() => handleBlur('destination')}
-              className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base sm:text-lg placeholder-gray-400 min-h-[48px] sm:min-h-[52px] ${
-                errors.destination && touched.destination 
-                  ? 'border-red-500 focus:ring-red-500' 
-                  : 'border-gray-300'
-              }`}
+              className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base sm:text-lg placeholder-gray-400 min-h-[48px] sm:min-h-[52px] ${errors.destination && touched.destination
+                ? 'border-red-500 focus:ring-red-500'
+                : 'border-gray-300'
+                }`}
               autoComplete="off"
               autoCapitalize="characters"
               autoCorrect="off"
@@ -151,7 +185,7 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
 
           {/* Amount Field */}
           <div>
-            <label 
+            <label
               htmlFor="amount"
               className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2"
             >
@@ -161,18 +195,17 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
               <span className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg sm:text-xl">
                 ₦
               </span>
-              <input 
+              <input
                 id="amount"
                 type="text"
                 placeholder="0.00"
                 value={form.amount}
                 onChange={e => handleAmountChange(e.target.value)}
                 onBlur={() => handleBlur('amount')}
-                className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base sm:text-lg placeholder-gray-400 min-h-[48px] sm:min-h-[52px] ${
-                  errors.amount && touched.amount 
-                    ? 'border-red-500 focus:ring-red-500' 
-                    : 'border-gray-300'
-                }`}
+                className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base sm:text-lg placeholder-gray-400 min-h-[48px] sm:min-h-[52px] ${errors.amount && touched.amount
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300'
+                  }`}
                 autoComplete="off"
               />
             </div>
@@ -195,7 +228,7 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
                 <button
                   key={amount}
                   type="button"
-                  onClick={() => setForm({...form, amount})}
+                  onClick={() => setForm({ ...form, amount })}
                   disabled={isLoading}
                   className="px-3 py-2 sm:px-4 sm:py-3 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-700 rounded-lg text-sm sm:text-base font-medium transition-colors duration-200 min-h-[44px] sm:min-h-[48px] touch-manipulation"
                 >
@@ -207,30 +240,30 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
         </div>
 
         {/* Submit Button */}
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={isLoading || !isFormValid}
           className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-all duration-200 text-base sm:text-lg min-h-[48px] sm:min-h-[52px] touch-manipulation transform active:scale-95"
         >
           {isLoading ? (
             <span className="flex items-center justify-center">
-              <svg 
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
                 viewBox="0 0 24 24"
               >
-                <circle 
-                  className="opacity-25" 
-                  cx="12" 
-                  cy="12" 
-                  r="10" 
-                  stroke="currentColor" 
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
                   strokeWidth="4"
                 />
-                <path 
-                  className="opacity-75" 
-                  fill="currentColor" 
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
@@ -244,15 +277,15 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
         {/* Security Notice */}
         <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
           <div className="flex items-start space-x-2">
-            <svg 
-              className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" 
-              fill="currentColor" 
+            <svg
+              className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0"
+              fill="currentColor"
               viewBox="0 0 20 20"
             >
-              <path 
-                fillRule="evenodd" 
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" 
-                clipRule="evenodd" 
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
               />
             </svg>
             <div className="text-xs sm:text-sm text-blue-800">

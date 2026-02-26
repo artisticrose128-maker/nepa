@@ -9,9 +9,27 @@ import { createPaymentSuccessEvent, createPaymentFailedEvent } from '../../datab
 import { errorHandler } from '../shared/middleware/errorHandler';
 import { requestIdMiddleware } from '../shared/middleware/requestId';
 import { sendSuccess, sendError } from '../shared/utils/response';
+import { Server } from 'socket.io';
+import http from 'http';
 import '../../databases/event-patterns/handlers';
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*', // You might want to restrict this in production
+    methods: ['GET', 'POST']
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('A client connected to payment-service WebSocket:', socket.id);
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected from payment-service:', socket.id);
+  });
+});
+
 const PORT = Number(process.env.PAYMENT_SERVICE_PORT || 3002);
 
 app.use(helmet());
@@ -50,11 +68,27 @@ app.post('/payments', async (req, res, next) => {
     EventBus.publish(event);
     await MessageBroker.publish(event);
 
+    io.emit('payment_success', {
+      paymentId: payment.id,
+      billId: payment.billId,
+      userId: payment.userId,
+      amount: Number(payment.amount),
+      status: payment.status
+    });
+
     sendSuccess(res, payment, 201);
   } catch (error: any) {
     const failEvent = createPaymentFailedEvent(req.body.paymentId, req.body.billId, req.body.userId, error?.message || 'unknown error');
     EventBus.publish(failEvent);
     await MessageBroker.publish(failEvent);
+
+    io.emit('payment_failed', {
+      paymentId: req.body.paymentId,
+      billId: req.body.billId,
+      userId: req.body.userId,
+      error: error?.message || 'unknown error'
+    });
+
     next(error);
   }
 });
@@ -115,4 +149,4 @@ app.get('/payments/user/:userId', async (req, res, next) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`Payment service running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Payment service running on port ${PORT}`));
