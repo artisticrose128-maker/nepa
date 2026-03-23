@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import SocialShare from './SocialShare';
-import OpenGraphMeta from './OpenGraphMeta';
 import { useSocialSharing } from '../hooks/useSocialSharing';
 import { ShareableContent } from './SocialShare';
 
@@ -75,10 +74,6 @@ const SocialShareExample: React.FC = () => {
 
   return (
     <div className="social-share-example p-6 max-w-4xl mx-auto">
-      <OpenGraphMeta
-        openGraph={openGraphData}
-        twitter={twitterCardData}
-      />
 
       <div className="space-y-8">
         {/* Header */}
@@ -101,11 +96,10 @@ const SocialShareExample: React.FC = () => {
               <button
                 key={content.id}
                 onClick={() => setSelectedContent(content)}
-                className={`p-4 rounded-lg border transition-colors ${
-                  selectedContent.id === content.id
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:bg-accent'
-                }`}
+                className={`p-4 rounded-lg border transition-colors ${selectedContent.id === content.id
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:bg-accent'
+                  }`}
               >
                 <div className="text-2xl mb-2">
                   {content.type === 'payment_success' && '💳'}
@@ -202,7 +196,7 @@ const SocialShareExample: React.FC = () => {
                 <div><strong>Site Name:</strong> {openGraphData.siteName}</div>
               </div>
             </div>
-            
+
             <div>
               <h3 className="font-medium text-foreground mb-2">Twitter Card</h3>
               <div className="bg-muted p-3 rounded text-sm">

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
 
 export interface OpenGraphData {
   title: string;
@@ -82,7 +81,7 @@ const OpenGraphMeta: React.FC<OpenGraphMetaProps> = ({
       tags.push(<meta key="og:image:width" property="og:image:width" content="1200" />);
       tags.push(<meta key="og:image:height" property="og:image:height" content="630" />);
       tags.push(<meta key="og:image:type" property="og:image:type" content="image/png" />);
-      
+
       if (finalOpenGraph.imageAlt) {
         tags.push(<meta key="og:image:alt" property="og:image:alt" content={finalOpenGraph.imageAlt} />);
       }
@@ -113,7 +112,7 @@ const OpenGraphMeta: React.FC<OpenGraphMetaProps> = ({
     tags.push(<meta key="twitter:card" name="twitter:card" content={finalTwitter.card} />);
     tags.push(<meta key="twitter:title" name="twitter:title" content={finalTwitter.title} />);
     tags.push(<meta key="twitter:description" name="twitter:description" content={finalTwitter.description} />);
-    
+
     if (finalTwitter.site) {
       tags.push(<meta key="twitter:site" name="twitter:site" content={finalTwitter.site} />);
     }
@@ -152,20 +151,20 @@ const OpenGraphMeta: React.FC<OpenGraphMetaProps> = ({
   }, [finalOpenGraph, finalTwitter, additionalMeta]);
 
   return (
-    <Helmet>
+    <>
       <title>{finalOpenGraph.title}</title>
       <meta name="description" content={finalOpenGraph.description} />
-      {metaTags}
-      
+      {metaTags.map((tag, index) => React.cloneElement(tag, { key: index }))}
+
       {/* Additional SEO meta tags */}
       <meta name="keywords" content="NEPA, utility payments, cryptocurrency, Stellar blockchain, decentralized payments, electricity bills, water bills" />
       <meta name="author" content="NEPA Platform" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta name="robots" content="index, follow" />
-      
+
       {/* Canonical URL */}
       <link rel="canonical" href={finalOpenGraph.url} />
-      
+
       {/* Structured Data for SEO */}
       <script type="application/ld+json">
         {JSON.stringify({
@@ -182,7 +181,7 @@ const OpenGraphMeta: React.FC<OpenGraphMetaProps> = ({
           }
         })}
       </script>
-    </Helmet>
+    </>
   );
 };
 
