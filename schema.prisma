@@ -58,6 +58,28 @@ enum TwoFactorMethod {
   AUTHENTICATOR_APP
 }
 
+// RBAC Enums
+enum PermissionScope {
+  GLOBAL
+  ORGANIZATION
+  DEPARTMENT
+  PERSONAL
+}
+
+enum ResourceType {
+  USER
+  BILL
+  PAYMENT
+  UTILITY
+  REPORT
+  WEBHOOK
+  DOCUMENT
+  AUDIT_LOG
+  ROLE
+  PERMISSION
+  SYSTEM
+}
+
 model User {
   id                String           @id @default(uuid())
   email             String           @unique
@@ -92,6 +114,7 @@ model User {
   webhooks               Webhook[]
   auditLogs              AuditLog[]
   blockchainWallets      BlockchainWallet[]
+  roleAssignments        UserRoleAssignment[]
 
   @@index([email])
   @@index([username])
@@ -644,4 +667,82 @@ model FraudBlacklist {
   @@index([isActive])
   @@index([addedBy])
   @@index([createdAt])
+}
+
+// RBAC Models
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  scope       PermissionScope @default(GLOBAL)
+  isActive    Boolean  @default(true)
+  isSystem    Boolean  @default(false) // System roles cannot be deleted
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  permissions RolePermission[]
+  userAssignments UserRoleAssignment[]
+
+  @@index([name])
+  @@index([scope])
+  @@index([isActive])
+}
+
+model Permission {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String?
+  resource    ResourceType
+  action      String       // 'create', 'read', 'update', 'delete', 'manage', etc.
+  scope       PermissionScope @default(GLOBAL)
+  isActive    Boolean      @default(true)
+  isSystem    Boolean      @default(false) // System permissions cannot be deleted
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  rolePermissions RolePermission[]
+
+  @@index([name])
+  @@index([resource])
+  @@index([action])
+  @@index([scope])
+  @@index([isActive])
+}
+
+model RolePermission {
+  id           String   @id @default(uuid())
+  roleId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model UserRoleAssignment {
+  id          String   @id @default(uuid())
+  userId      String
+  roleId      String
+  assignedBy  String?  // User who assigned this role
+  assignedAt  DateTime @default(now())
+  expiresAt   DateTime? // Role assignment expiration
+  isActive    Boolean  @default(true)
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([assignedBy])
+  @@index([expiresAt])
+  @@index([isActive])
 }
