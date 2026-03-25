@@ -14,6 +14,7 @@ import { applyPaymentSecurity, processPayment, getPaymentHistory, validatePaymen
 import { setupRateLimitRoutes } from './routes/rateLimitRoutes';
 import auditRoutes from './routes/auditRoutes';
 import fraudRoutes from './routes/fraudRoutes';
+import rbacRoutes from './routes/rbac';
 import { auditCleanupService } from './services/AuditCleanupService';
 import { registerAuditHandlers } from './databases/event-patterns/handlers/auditHandlers';
 import { EventBus } from './databases/event-patterns/EventBus';
@@ -102,6 +103,9 @@ app.use('/api/audit', auditRoutes);
 
 // 11b. Fraud detection API (ML scoring 0-100, manual review workflow, adaptive learning)
 app.use('/api/fraud', fraudRoutes);
+
+// 11c. RBAC API (Role-Based Access Control)
+app.use('/api/rbac', rbacRoutes);
 
 // 12. API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -226,12 +230,5 @@ const initializeAuditSystem = async () => {
 
 // Initialize audit system on startup
 initializeAuditSystem();
-
-export default app;
-// Cache Management Routes (Admin only)
-app.use('/api/cache', cacheRoutes);
-
-// Add cache middleware to existing routes for better performance
-// Note: These would be added to existing route definitions in a real implementation
 
 export default app;
