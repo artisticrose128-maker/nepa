@@ -265,4 +265,20 @@ export class AuthenticationController {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  async disableTwoFactor(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      const result = await authService.disableTwoFactor(user.id);
+      
+      if (result.error) {
+        return res.status(400).json({ error: result.error });
+      }
+
+      res.json({ message: 'Two-factor authentication disabled successfully' });
+    } catch (error) {
+      console.error('Disable 2FA controller error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 }

@@ -1,6 +1,6 @@
 # NEPA - Decentralized Utility Payment Platform
 
-A decentralized utility payment platform enabling users to pay electricity & water bills using Stellar blockchain.
+A decentralized utility payment platform enabling users to pay electricity and water bills using Stellar blockchain.
 
 ## 🏗️ Architecture
 

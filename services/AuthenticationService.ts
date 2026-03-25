@@ -423,6 +423,24 @@ export class AuthenticationService {
     return false;
   }
 
+  async disableTwoFactor(userId: string): Promise<{ error?: string }> {
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          twoFactorEnabled: false,
+          twoFactorMethod: TwoFactorMethod.NONE,
+          twoFactorSecret: null
+        }
+      });
+
+      return {};
+    } catch (error) {
+      console.error('Disable 2FA error:', error);
+      return { error: 'Failed to disable two-factor authentication' };
+    }
+  }
+
   async createSession(userId: string, userAgent?: string, ipAddress?: string): Promise<SessionData> {
     const token = jwt.sign(
       { userId, sessionId: uuidv4() },
