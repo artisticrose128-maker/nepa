@@ -369,7 +369,11 @@ model UserProfile {
   language    String   @default("en")
   currency    String   @default("USD")
   theme       String   @default("light") // 'light', 'dark', 'auto'
-  preferences Json?    // User preferences as JSON
+  layout      String   @default("comfortable") // 'compact', 'comfortable', 'spacious'
+  sidebarCollapsed Boolean @default(false)
+  notificationsEnabled Boolean @default(true)
+  autoSave    Boolean  @default(true)
+  preferences Json?    // Additional user preferences as JSON
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   

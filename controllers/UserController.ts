@@ -21,6 +21,10 @@ const updatePreferencesSchema = Joi.object({
   language: Joi.string().optional(),
   currency: Joi.string().optional(),
   theme: Joi.string().valid('light', 'dark', 'auto').optional(),
+  layout: Joi.string().valid('compact', 'comfortable', 'spacious').optional(),
+  sidebarCollapsed: Joi.boolean().optional(),
+  notificationsEnabled: Joi.boolean().optional(),
+  autoSave: Joi.boolean().optional(),
   preferences: Joi.object().optional()
 });
 
