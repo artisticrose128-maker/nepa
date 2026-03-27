@@ -3,11 +3,9 @@ import swaggerUi from 'swagger-ui-express';
 import { apiLimiter, ddosDetector, checkBlockedIP, ipRestriction, progressiveLimiter } from './middleware/rateLimiter';
 import { configureSecurity } from './middleware/security';
 import { apiKeyAuth } from './middleware/auth';
-import { loggingMiddleware, setupGlobalErrorHandling, errorTracker } from './middleware/logger';
+import { loggingMiddleware, setupGlobalErrorHandling, errorTracker, logger } from './middleware/logger';
 import { errorTracker as abuseDetector } from './middleware/abuseDetection';
-import { captureAuditContext, auditRateLimit, auditSecurityAlert, auditAuth, auditAdmin, auditPayment, auditDocument } from './middleware/auditMiddleware';
-import { AuditAction } from './services/AuditService';
-import { swaggerSpec } from './swagger';
+
 import { upload } from './middleware/upload';
 import { uploadDocument } from './controllers/DocumentController';
 import { getDashboardData, generateReport, exportData } from './controllers/AnalyticsController';
@@ -15,8 +13,7 @@ import { applyPaymentSecurity, processPayment, getPaymentHistory, validatePaymen
 import { setupRateLimitRoutes } from './routes/rateLimitRoutes';
 import auditRoutes from './routes/auditRoutes';
 import fraudRoutes from './routes/fraudRoutes';
-import cacheRoutes from './routes/cacheRoutes';
-import rbacRoutes from './routes/rbac';
+
 import { auditCleanupService } from './services/AuditCleanupService';
 import { registerAuditHandlers } from './databases/event-patterns/handlers/auditHandlers';
 import { EventBus } from './databases/event-patterns/EventBus';
@@ -120,8 +117,7 @@ app.use('/api/audit', auditRoutes);
 // 11b. Fraud detection API (ML scoring 0-100, manual review workflow, adaptive learning)
 app.use('/api/fraud', fraudRoutes);
 
-// 11c. RBAC API (Role-Based Access Control)
-app.use('/api/rbac', rbacRoutes);
+
 
 // 12. API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
