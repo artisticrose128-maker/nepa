@@ -85,4 +85,81 @@ export class BillingService {
       data: { discount: discountAmount }
     });
   }
+
+  async getPaymentHistory(userId: string, limit: number = 10, offset: number = 0) {
+    const [payments, total] = await Promise.all([
+      prisma.payment.findMany({
+        where: { userId },
+        include: {
+          bill: {
+            select: {
+              id: true,
+              amount: true,
+              dueDate: true,
+              utility: {
+                select: {
+                  name: true,
+                  type: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset
+      }),
+      prisma.payment.count({ where: { userId } })
+    ]);
+
+    return {
+      payments,
+      pagination: {
+        limit,
+        offset,
+        total,
+        page: Math.floor(offset / limit) + 1,
+        totalPages: Math.ceil(total / limit),
+        hasNext: offset + limit < total,
+        hasPrev: offset > 0
+      }
+    };
+  }
+
+  async getBill(billId: string) {
+    return prisma.bill.findUnique({
+      where: { id: billId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true
+          }
+        }
+      }
+    });
+  }
+
+  async processPayment(paymentData: any) {
+    // This would integrate with actual payment processor
+    const payment = await prisma.payment.create({
+      data: {
+        amount: paymentData.amount,
+        method: paymentData.paymentMethod,
+        status: 'SUCCESS',
+        billId: paymentData.billId,
+        userId: paymentData.userId,
+        transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      }
+    });
+
+    // Update bill status
+    await prisma.bill.update({
+      where: { id: paymentData.billId },
+      data: { status: BillStatus.PAID }
+    });
+
+    return payment;
+  }
 }

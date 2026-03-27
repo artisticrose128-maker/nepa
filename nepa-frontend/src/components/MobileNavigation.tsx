@@ -15,8 +15,8 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView, onView
 
   return (
     <>
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-sm sticky top-0 z-40">
+      {/* Mobile & Tablet Header */}
+      <div className="md:hidden bg-white shadow-sm sticky top-0 z-40">
         <div className="flex items-center justify-between p-4">
           <h1 className="text-xl font-bold text-blue-600">NEPA 💡</h1>
           <button
@@ -73,7 +73,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView, onView
       </div>
 
       {/* Desktop Navigation */}
-      <div className="hidden lg:block">
+      <div className="hidden md:block">
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6 sm:mb-8">
           <button
             onClick={() => onViewChange('payment')}

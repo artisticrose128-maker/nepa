@@ -459,4 +459,142 @@ export class AuthenticationController extends BaseController {
       available: !existingUser
     });
   });
+
+  /**
+   * Request password reset
+   * POST /api/v1/auth/forgot-password
+   */
+  forgotPassword = this.asyncHandler(async (req: Request, res: Response) => {
+    const { email } = this.validateBody(req, Joi.object({
+      email: CommonSchemas.email
+    }));
+
+    // Request password reset
+    const result = await this.authService.requestPasswordReset(email);
+    
+    if (!result.success) {
+      return res.error(
+        ErrorCode.INTERNAL_ERROR,
+        result.error || 'Failed to process password reset request',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+
+    // Always return success to avoid revealing email existence
+    res.success({
+      message: 'If an account with that email exists, a password reset link has been sent.'
+    });
+  });
+
+  /**
+   * Reset password with token
+   * POST /api/v1/auth/reset-password
+   */
+  resetPassword = this.asyncHandler(async (req: Request, res: Response) => {
+    const { token, newPassword } = this.validateBody(req, Joi.object({
+      token: Joi.string().required(),
+      newPassword: Joi.string().min(8).required().pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        .messages({
+          'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+        })
+    }));
+
+    // Reset password
+    const result = await this.authService.resetPassword(token, newPassword);
+    
+    if (!result.success) {
+      return res.error(
+        ErrorCode.INVALID_INPUT,
+        result.error || 'Failed to reset password',
+   * Get token status and expiration information
+   * GET /api/v1/auth/token-status
+   */
+  getTokenStatus = this.asyncHandler(async (req: Request, res: Response) => {
+    // Get token from authorization header
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '') || authHeader?.replace('Bearer ', '');
+
+    if (!token) {
+      return res.error(
+        ErrorCode.TOKEN_REQUIRED,
+        'Authorization token is required',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    res.success({
+      message: 'Password has been reset successfully. Please login with your new password.'
+    });
+  });
+
+  /**
+   * Verify password reset token
+   * POST /api/v1/auth/verify-reset-token
+   */
+  verifyResetToken = this.asyncHandler(async (req: Request, res: Response) => {
+    const { token } = this.validateBody(req, Joi.object({
+      token: Joi.string().required()
+    }));
+
+    // Verify token
+    const result = await this.authService.verifyResetToken(token);
+    
+    if (!result.success) {
+      return res.error(
+        ErrorCode.INTERNAL_ERROR,
+        result.error || 'Failed to verify token',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+
+    if (!result.valid) {
+      return res.error(
+        ErrorCode.INVALID_INPUT,
+        result.error || 'Invalid or expired reset token',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    res.success({
+      valid: true,
+      email: result.email
+    });
+    // Get token status
+    const status = await this.authService.getTokenStatus(token);
+    
+    if (!status.valid) {
+      return res.error(
+        ErrorCode.TOKEN_INVALID,
+        status.error || 'Token is invalid or expired',
+        status.warningLevel === 'expired' ? HttpStatus.UNAUTHORIZED : HttpStatus.BAD_REQUEST,
+        {
+          valid: status.valid,
+          warningLevel: status.warningLevel,
+          expiresAt: status.expiresAt
+        }
+      );
+    }
+
+    // Return token status with appropriate warning level
+    const response: any = {
+      valid: status.valid,
+      expiresAt: status.expiresAt,
+      timeUntilExpiry: status.timeUntilExpiry,
+      warningLevel: status.warningLevel
+    };
+
+    // Add appropriate message based on warning level
+    if (status.warningLevel === 'critical') {
+      response.message = 'Your session will expire in less than 1 minute. Please save your work.';
+      response.actionRequired = true;
+    } else if (status.warningLevel === 'warning') {
+      response.message = 'Your session will expire in less than 5 minutes.';
+      response.actionRequired = false;
+    } else {
+      response.message = 'Session is active';
+      response.actionRequired = false;
+    }
+
+    res.success(response);
+  });
 }

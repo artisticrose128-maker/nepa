@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { ariaLabels, keyboardKeys, announceToScreenReader } from '../utils/accessibility';
+import { useShortcut } from '../contexts/KeyboardShortcutContext';
 
 interface SearchSuggestion {
   id: string;
@@ -61,6 +62,20 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   const filtersRef = useRef<HTMLDivElement>(null);
   const debouncedQueryRef = useRef<string>('');
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Global shortcut to focus search input
+  useShortcut({
+    key: 'k',
+    ctrlKey: true,
+    description: 'Focus search input',
+    action: () => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        announceToScreenReader('Search input focused');
+      }
+    },
+    preventDefault: true,
+  });
 
   // Load search history from localStorage
   useEffect(() => {

@@ -5,12 +5,7 @@ import { configureSecurity } from './middleware/security';
 import { apiKeyAuth } from './middleware/auth';
 import { loggingMiddleware, setupGlobalErrorHandling, errorTracker, logger } from './middleware/logger';
 import { errorTracker as abuseDetector } from './middleware/abuseDetection';
-import { captureAuditContext, auditRateLimit, auditSecurityAlert } from './middleware/auditMiddleware';
-import { swaggerSpec, getVersionedSwaggerSpec } from './swagger';
-import { initializeCacheSystem } from './services/cacheService';
-import { advancedRateLimiter } from './middleware/advancedRateLimiter';
-import { apiVersioningConfig } from './config/apiVersioning';
-import cacheRoutes from './routes/cacheRoutes';
+
 import { upload } from './middleware/upload';
 import { uploadDocument } from './controllers/DocumentController';
 import { getDashboardData, generateReport, exportData } from './controllers/AnalyticsController';
@@ -18,10 +13,24 @@ import { applyPaymentSecurity, processPayment, getPaymentHistory, validatePaymen
 import { setupRateLimitRoutes } from './routes/rateLimitRoutes';
 import auditRoutes from './routes/auditRoutes';
 import fraudRoutes from './routes/fraudRoutes';
-import rssRoutes from './routes/rssRoutes';
+
 import { auditCleanupService } from './services/AuditCleanupService';
 import { registerAuditHandlers } from './databases/event-patterns/handlers/auditHandlers';
 import { EventBus } from './databases/event-patterns/EventBus';
+import { AuthenticationController } from './controllers/AuthenticationController';
+import { UserController } from './controllers/UserController';
+import { authenticate, authorize } from './middleware/authentication';
+
+// Define UserRole locally since it's not exported from @prisma/client
+enum UserRole {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN'
+}
+
+// Initialize controllers
+const authController = new AuthenticationController();
+const userController = new UserController();
 
 // Mock services for now - replace with actual implementations
 const performanceMonitor = {
@@ -108,8 +117,7 @@ app.use('/api/audit', auditRoutes);
 // 11b. Fraud detection API (ML scoring 0-100, manual review workflow, adaptive learning)
 app.use('/api/fraud', fraudRoutes);
 
-// 11c. RSS Feed endpoints
-app.use('/api/rss', rssRoutes);
+
 
 // 12. API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -161,7 +169,72 @@ app.get('/api/versions', (_req, res) => {
   });
 });
 
-// Document Upload Route
+// 12. Authentication endpoints with comprehensive audit logging
+app.post('/api/auth/register', 
+  authLimiter, 
+  auditAuth(AuditAction.USER_REGISTER), 
+  authController.register.bind(authController)
+);
+app.post('/api/auth/login', 
+  authLimiter, 
+  auditAuth(AuditAction.USER_LOGIN), 
+  authController.login.bind(authController)
+);
+app.post('/api/auth/logout', 
+  authenticate, 
+  auditAuth(AuditAction.USER_LOGOUT), 
+  authController.logout.bind(authController)
+);
+
+// 13. User profile endpoints with audit logging
+app.get('/api/user/profile', authenticate, authController.getProfile.bind(authController));
+app.put('/api/user/profile', 
+  authenticate, 
+  auditAuth(AuditAction.USER_UPDATE_PROFILE), 
+  userController.updateProfile.bind(userController)
+);
+app.post('/api/user/change-password', 
+  authenticate, 
+  auditAuth(AuditAction.USER_CHANGE_PASSWORD), 
+  userController.changePassword.bind(userController)
+);
+
+// 14. Admin user management endpoints with audit logging
+app.get('/api/admin/users', 
+  authenticate, 
+  authorize(UserRole.ADMIN), 
+  auditAdmin(AuditAction.ADMIN_VIEW_USER_DATA, 'user'),
+  userController.getAllUsers.bind(userController)
+);
+app.put('/api/admin/users/:id/role', 
+  authenticate, 
+  authorize(UserRole.ADMIN), 
+  auditAdmin(AuditAction.ADMIN_UPDATE_USER_ROLE, 'user'),
+  userController.updateUserRole.bind(userController)
+);
+app.delete('/api/admin/users/:id', 
+  authenticate, 
+  authorize(UserRole.ADMIN), 
+  auditAdmin(AuditAction.ADMIN_DELETE_USER, 'user'),
+  userController.deleteUser.bind(userController)
+);
+
+// 15. Payment endpoints with comprehensive audit logging
+app.post('/api/payment/process', 
+  ...applyPaymentSecurity, 
+  auditPayment(AuditAction.PAYMENT_INITIATE),
+  processPayment
+);
+
+// 16. Document upload with audit logging
+app.post('/api/documents/upload', 
+  apiKeyAuth, 
+  upload.single('file'), 
+  auditDocument(AuditAction.DOCUMENT_UPLOAD),
+  uploadDocument
+);
+
+// Analytics Routes
 /**
  * @openapi
  * /api/documents/upload:
@@ -184,20 +257,6 @@ app.get('/api/versions', (_req, res) => {
  *       201:
  *         description: Document uploaded successfully
  */
-app.post('/api/documents/upload', apiKeyAuth, upload.single('file'), uploadDocument);
-
-// Analytics Routes
-/**
- * @openapi
- * /api/analytics/dashboard:
- *   get:
- *     summary: Get analytics dashboard data
- *     security:
- *       - ApiKeyAuth: []
- *     responses:
- *       200:
- *         description: Dashboard data retrieved
- */
 app.get('/api/analytics/dashboard', apiKeyAuth, getDashboardData);
 
 /**
@@ -212,9 +271,38 @@ app.get('/api/analytics/dashboard', apiKeyAuth, getDashboardData);
  *         description: Report created
  */
 app.post('/api/analytics/reports', apiKeyAuth, generateReport);
-
-// Export Route
 app.get('/api/analytics/export', apiKeyAuth, exportData);
+
+// Additional authentication routes for wallet login and 2FA
+app.post('/api/auth/wallet', 
+  authLimiter, 
+  auditAuth(AuditAction.USER_LOGIN), 
+  authController.loginWithWallet.bind(authController)
+);
+app.post('/api/auth/refresh', 
+  authLimiter, 
+  authController.refreshToken.bind(authController)
+);
+
+// Two-factor authentication endpoints
+app.post('/api/user/2fa/enable', 
+  authenticate, 
+  auditAuth(AuditAction.USER_ENABLE_2FA), 
+  authController.enableTwoFactor.bind(authController)
+);
+app.post('/api/user/2fa/disable', 
+  authenticate, 
+  auditAuth(AuditAction.USER_DISABLE_2FA), 
+  authController.disableTwoFactor.bind(authController)
+);
+
+// User sessions
+app.get('/api/user/sessions', authenticate, userController.getUserSessions.bind(userController));
+app.delete('/api/user/sessions/:sessionId', 
+  authenticate, 
+  auditAuth(AuditAction.USER_REVOKE_SESSION), 
+  userController.revokeSession.bind(userController)
+);
 
 // Initialize audit system
 const initializeAuditSystem = async () => {
@@ -235,11 +323,7 @@ const initializeAuditSystem = async () => {
 // Initialize audit system on startup
 initializeAuditSystem();
 
-export default app;
 // Cache Management Routes (Admin only)
 app.use('/api/cache', cacheRoutes);
-
-// Add cache middleware to existing routes for better performance
-// Note: These would be added to existing route definitions in a real implementation
 
 export default app;

@@ -265,4 +265,55 @@ export class AuthenticationController {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  async disableTwoFactor(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      const result = await authService.disableTwoFactor(user.id);
+      
+      if (result.error) {
+        return res.status(400).json({ error: result.error });
+      }
+
+      res.json({ message: 'Two-factor authentication disabled successfully' });
+    } catch (error) {
+      console.error('Disable 2FA controller error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async getTokenStatus(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      
+      if (!token) {
+        return res.status(400).json({ error: 'Token required' });
+      }
+
+      const status = await authService.getTokenStatus(token);
+      
+      if (status.error) {
+        return res.status(401).json({ 
+          error: status.error,
+          valid: status.valid,
+          warningLevel: status.warningLevel
+        });
+      }
+
+      res.json({
+        valid: status.valid,
+        expiresAt: status.expiresAt,
+        timeUntilExpiry: status.timeUntilExpiry,
+        warningLevel: status.warningLevel,
+        message: status.warningLevel === 'critical' 
+          ? 'Your session will expire in less than 1 minute. Please save your work.'
+          : status.warningLevel === 'warning'
+          ? 'Your session will expire in less than 5 minutes.'
+          : 'Session is active'
+      });
+    } catch (error) {
+      console.error('Get token status controller error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 }

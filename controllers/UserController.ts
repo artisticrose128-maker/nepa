@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { PrismaClient, UserStatus, UserRole } from '@prisma/client';
 import Joi from 'joi';
 import bcrypt from 'bcryptjs';
+import { invalidateUserCache } from '../middleware/cache';
 
 const prisma = new PrismaClient();
 
@@ -21,6 +22,10 @@ const updatePreferencesSchema = Joi.object({
   language: Joi.string().optional(),
   currency: Joi.string().optional(),
   theme: Joi.string().valid('light', 'dark', 'auto').optional(),
+  layout: Joi.string().valid('compact', 'comfortable', 'spacious').optional(),
+  sidebarCollapsed: Joi.boolean().optional(),
+  notificationsEnabled: Joi.boolean().optional(),
+  autoSave: Joi.boolean().optional(),
   preferences: Joi.object().optional()
 });
 
@@ -34,11 +39,24 @@ const updateUserRoleSchema = Joi.object({
   status: Joi.string().valid(...Object.values(UserStatus)).optional()
 });
 
+const searchSchema = Joi.object({
+  search: Joi.string().max(100).optional(),
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
+  role: Joi.string().valid(...Object.values(UserRole)).optional(),
+  status: Joi.string().valid(...Object.values(UserStatus)).optional()
+});
+
 export class UserController {
   async getAllUsers(req: Request, res: Response) {
     try {
-      const { page = 1, limit = 10, search, role, status } = req.query;
-      const skip = (Number(page) - 1) * Number(limit);
+      const { error, value } = searchSchema.validate(req.query);
+      if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+      }
+
+      const { page, limit, search, role, status } = value;
+      const skip = (page - 1) * limit;
 
       const where: any = {};
       
@@ -92,10 +110,10 @@ export class UserController {
       res.json({
         users,
         pagination: {
-          page: Number(page),
-          limit: Number(limit),
+          page,
+          limit,
           total,
-          pages: Math.ceil(total / Number(limit))
+          pages: Math.ceil(total / limit)
         }
       });
     } catch (error) {
@@ -190,6 +208,9 @@ export class UserController {
         }
       });
 
+      // Invalidate user cache after profile update
+      await invalidateUserCache(user.id);
+
       res.json({
         message: 'Profile updated successfully',
         user: updatedUser
@@ -217,6 +238,9 @@ export class UserController {
           ...value
         }
       });
+
+      // Invalidate user cache after preferences update
+      await invalidateUserCache(user.id);
 
       res.json({
         message: 'Preferences updated successfully',
@@ -277,6 +301,9 @@ export class UserController {
         data: { passwordHash: newPasswordHash }
       });
 
+      // Invalidate user cache after password change
+      await invalidateUserCache(user.id);
+
       res.json({ message: 'Password changed successfully' });
     } catch (error) {
       console.error('Change password error:', error);
@@ -320,6 +347,9 @@ export class UserController {
           updatedAt: true
         }
       });
+
+      // Invalidate cache for the updated user
+      await invalidateUserCache(id);
 
       res.json({
         message: 'User role updated successfully',
@@ -378,6 +408,9 @@ export class UserController {
         data: { isActive: false }
       });
 
+      // Invalidate user cache after session revocation
+      await invalidateUserCache(user.id);
+
       res.json({ message: 'Session revoked successfully' });
     } catch (error) {
       console.error('Revoke session error:', error);
@@ -422,6 +455,9 @@ export class UserController {
         where: { userId: id },
         data: { isActive: false }
       });
+
+      // Invalidate cache for the deleted user
+      await invalidateUserCache(id);
 
       res.json({ message: 'User deleted successfully' });
     } catch (error) {

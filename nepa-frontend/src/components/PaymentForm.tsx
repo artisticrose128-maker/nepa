@@ -8,6 +8,7 @@ import {
   VALIDATION_RULES
 } from '../utils/validation';
 import { usePaymentSocket } from '../hooks/usePaymentSocket';
+import { useFormShortcuts } from '../hooks/useFormShortcuts';
 
 interface FormErrors {
   destination?: string;
@@ -27,6 +28,25 @@ export const PaymentForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
     amount: false
   });
   const { isConnected, paymentStatus, setPaymentStatus } = usePaymentSocket();
+
+  // Add keyboard shortcuts for form actions
+  const handleFormSubmit = () => {
+    setTouched({ destination: true, amount: true });
+    if (validateForm()) {
+      onSubmit({
+        destination: form.destination.trim(),
+        amount: form.amount
+      });
+    }
+  };
+
+  const handleFormCancel = () => {
+    setForm({ destination: '', amount: '' });
+    setErrors({});
+    setTouched({ destination: false, amount: false });
+  };
+
+  useFormShortcuts(handleFormSubmit, handleFormCancel);
 
   // Validation functions using utilities
   const validateMeterId = (meterId: string): string | undefined => {

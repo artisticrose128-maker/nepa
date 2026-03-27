@@ -6,6 +6,7 @@ import { PrismaClient, User, UserRole, UserStatus, TwoFactorMethod } from '@pris
 import { v4 as uuidv4 } from 'uuid';
 import { auditService } from './AuditService';
 import { AuditAction, AuditSeverity, AuditStatus } from '../databases/audit-service/schema.prisma';
+import { emailService } from './EmailService';
 
 const prisma = new PrismaClient();
 
@@ -422,6 +423,24 @@ export class AuthenticationService {
     return false;
   }
 
+  async disableTwoFactor(userId: string): Promise<{ error?: string }> {
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          twoFactorEnabled: false,
+          twoFactorMethod: TwoFactorMethod.NONE,
+          twoFactorSecret: null
+        }
+      });
+
+      return {};
+    } catch (error) {
+      console.error('Disable 2FA error:', error);
+      return { error: 'Failed to disable two-factor authentication' };
+    }
+  }
+
   async createSession(userId: string, userAgent?: string, ipAddress?: string): Promise<SessionData> {
     const token = jwt.sign(
       { userId, sessionId: uuidv4() },
@@ -437,6 +456,8 @@ export class AuthenticationService {
 
     const decoded = jwt.decode(token) as any;
     const sessionId = decoded.sessionId;
+    const issuedAt = new Date(decoded.iat * 1000);
+    const expiresAt = new Date(decoded.exp * 1000);
 
     // Store session in database
     await prisma.userSession.create({
@@ -447,7 +468,8 @@ export class AuthenticationService {
         sessionId,
         userAgent,
         ipAddress,
-        expiresAt: new Date(decoded.exp * 1000)
+        issuedAt,
+        expiresAt
       }
     });
 
@@ -494,9 +516,9 @@ export class AuthenticationService {
     }
   }
 
-  async verifyToken(token: string): Promise<{ user?: User; error?: string }> {
+  async verifyToken(token: string): Promise<{ user?: User; error?: string; expiresAt?: Date; timeUntilExpiry?: number }> {
     try {
-      const decoded = jwt.verify(token, this.JWT_SECRET) as { userId: string; sessionId: string };
+      const decoded = jwt.verify(token, this.JWT_SECRET) as { userId: string; sessionId: string; exp: number };
       
       const session = await prisma.userSession.findFirst({
         where: {
@@ -513,8 +535,19 @@ export class AuthenticationService {
         return { error: 'Invalid or expired session' };
       }
 
-      return { user: session.user };
+      const now = new Date();
+      const expiresAt = new Date(decoded.exp * 1000);
+      const timeUntilExpiry = expiresAt.getTime() - now.getTime();
+
+      return { 
+        user: session.user,
+        expiresAt,
+        timeUntilExpiry
+      };
     } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        return { error: 'Token expired' };
+      }
       return { error: 'Invalid token' };
     }
   }
@@ -527,5 +560,267 @@ export class AuthenticationService {
     };
 
     return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
+  }
+
+  async requestPasswordReset(email: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Find user by email
+      const user = await prisma.user.findUnique({
+        where: { email }
+      });
+
+      if (!user) {
+        // Don't reveal that email doesn't exist for security
+        return { success: true };
+      }
+
+      // Invalidate any existing reset tokens for this user
+      await prisma.passwordResetToken.updateMany({
+        where: { 
+          userId: user.id,
+          isUsed: false 
+        },
+        data: { 
+          isUsed: true,
+          updatedAt: new Date()
+        }
+      });
+
+      // Generate new reset token
+      const resetToken = uuidv4();
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+      // Store reset token
+      await prisma.passwordResetToken.create({
+        data: {
+          token: resetToken,
+          userId: user.id,
+          expiresAt
+        }
+      });
+
+      // Send password reset email
+      const emailResult = await emailService.sendPasswordResetEmail(
+        user.email,
+        resetToken,
+        user.name || user.username
+      );
+
+      if (!emailResult.success) {
+        console.error('Failed to send password reset email:', emailResult.error);
+        // Still return success to avoid revealing email existence
+        return { success: true };
+      }
+
+      // Log audit
+      await auditService.logAudit({
+        action: AuditAction.PASSWORD_RESET_REQUESTED,
+        resource: 'user',
+        resourceId: user.id,
+        description: `Password reset requested - ${user.email}`,
+        severity: AuditSeverity.MEDIUM,
+        status: AuditStatus.SUCCESS,
+        metadata: {
+          email: user.email,
+          resetToken: resetToken.substring(0, 8) + '...' // Log partial token for security
+        }
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Password reset request error:', error);
+      return { success: false, error: 'Failed to process password reset request' };
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Find valid reset token
+      const resetToken = await prisma.passwordResetToken.findFirst({
+        where: {
+          token,
+          isUsed: false,
+          expiresAt: { gt: new Date() }
+        },
+        include: { user: true }
+      });
+
+      if (!resetToken) {
+        return { success: false, error: 'Invalid or expired reset token' };
+      }
+
+      // Hash new password
+      const passwordHash = await bcrypt.hash(newPassword, 12);
+
+      // Update user password
+      await prisma.user.update({
+        where: { id: resetToken.userId },
+        data: {
+          passwordHash,
+          updatedAt: new Date(),
+          loginAttempts: 0, // Reset login attempts
+          lockedUntil: null  // Unlock account if it was locked
+        }
+      });
+
+      // Mark token as used
+      await prisma.passwordResetToken.update({
+        where: { id: resetToken.id },
+        data: {
+          isUsed: true,
+          updatedAt: new Date()
+        }
+      });
+
+      // Invalidate all user sessions (force re-login)
+      await prisma.userSession.updateMany({
+        where: { userId: resetToken.userId },
+        data: { isActive: false }
+      });
+
+      // Log audit
+      await auditService.logAudit({
+        action: AuditAction.PASSWORD_RESET_COMPLETED,
+        resource: 'user',
+        resourceId: resetToken.userId,
+        description: `Password reset completed - ${resetToken.user.email}`,
+        severity: AuditSeverity.HIGH,
+        status: AuditStatus.SUCCESS,
+        metadata: {
+          email: resetToken.user.email,
+          resetToken: token.substring(0, 8) + '...' // Log partial token for security
+        }
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Password reset error:', error);
+      return { success: false, error: 'Failed to reset password' };
+    }
+  }
+
+  async verifyResetToken(token: string): Promise<{ success: boolean; valid: boolean; email?: string; error?: string }> {
+    try {
+      const resetToken = await prisma.passwordResetToken.findFirst({
+        where: {
+          token,
+          isUsed: false,
+          expiresAt: { gt: new Date() }
+        },
+        include: { user: true }
+      });
+
+      if (!resetToken) {
+        return { success: true, valid: false, error: 'Invalid or expired reset token' };
+      }
+
+      return { 
+        success: true, 
+        valid: true, 
+        email: resetToken.user.email 
+      };
+    } catch (error) {
+      console.error('Token verification error:', error);
+      return { success: false, valid: false, error: 'Failed to verify token' };
+    }
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    try {
+      return await prisma.user.findUnique({
+        where: { email }
+      });
+    } catch (error) {
+      console.error('Find user by email error:', error);
+      return null;
+    }
+  }
+
+  async findByUsername(username: string): Promise<User | null> {
+    try {
+      return await prisma.user.findUnique({
+        where: { username }
+      });
+    } catch (error) {
+      console.error('Find user by username error:', error);
+      return null;
+    }
+  }
+
+  async getAvailableMethods(userId: string): Promise<string[]> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { 
+          twoFactorEnabled: true, 
+          twoFactorMethod: true,
+          walletAddress: true 
+        }
+      });
+
+      if (!user) {
+        return [];
+      }
+
+      const methods = ['email', 'password'];
+      
+      if (user.walletAddress) {
+        methods.push('wallet');
+      }
+
+      if (user.twoFactorEnabled) {
+        methods.push('2fa');
+      }
+
+      return methods;
+    } catch (error) {
+      console.error('Get available methods error:', error);
+      return [];
+  async getTokenStatus(token: string): Promise<{
+    valid: boolean;
+    expiresAt?: Date;
+    timeUntilExpiry?: number;
+    warningLevel?: 'none' | 'warning' | 'critical' | 'expired';
+    error?: string;
+  }> {
+    try {
+      const decoded = jwt.decode(token) as any;
+      if (!decoded || !decoded.exp) {
+        return { valid: false, error: 'Invalid token format' };
+      }
+
+      const now = new Date();
+      const expiresAt = new Date(decoded.exp * 1000);
+      const timeUntilExpiry = expiresAt.getTime() - now.getTime();
+
+      if (timeUntilExpiry <= 0) {
+        return { 
+          valid: false, 
+          expiresAt, 
+          timeUntilExpiry, 
+          warningLevel: 'expired',
+          error: 'Token expired' 
+        };
+      }
+
+      let warningLevel: 'none' | 'warning' | 'critical' = 'none';
+      const fiveMinutes = 5 * 60 * 1000;
+      const oneMinute = 1 * 60 * 1000;
+
+      if (timeUntilExpiry <= oneMinute) {
+        warningLevel = 'critical';
+      } else if (timeUntilExpiry <= fiveMinutes) {
+        warningLevel = 'warning';
+      }
+
+      return {
+        valid: true,
+        expiresAt,
+        timeUntilExpiry,
+        warningLevel
+      };
+    } catch (error) {
+      return { valid: false, error: 'Invalid token' };
+    }
   }
 }

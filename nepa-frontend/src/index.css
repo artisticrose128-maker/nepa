@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import './styles/theme.css';
+@import './styles/tablet-responsive.css';
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -66,5 +67,31 @@ button:focus-visible {
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+}
+
+/* Tablet-specific styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .tablet-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .tablet-flex {
+    display: flex;
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 }
