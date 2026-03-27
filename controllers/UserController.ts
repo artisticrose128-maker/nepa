@@ -39,11 +39,24 @@ const updateUserRoleSchema = Joi.object({
   status: Joi.string().valid(...Object.values(UserStatus)).optional()
 });
 
+const searchSchema = Joi.object({
+  search: Joi.string().max(100).optional(),
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
+  role: Joi.string().valid(...Object.values(UserRole)).optional(),
+  status: Joi.string().valid(...Object.values(UserStatus)).optional()
+});
+
 export class UserController {
   async getAllUsers(req: Request, res: Response) {
     try {
-      const { page = 1, limit = 10, search, role, status } = req.query;
-      const skip = (Number(page) - 1) * Number(limit);
+      const { error, value } = searchSchema.validate(req.query);
+      if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+      }
+
+      const { page, limit, search, role, status } = value;
+      const skip = (page - 1) * limit;
 
       const where: any = {};
       
@@ -97,10 +110,10 @@ export class UserController {
       res.json({
         users,
         pagination: {
-          page: Number(page),
-          limit: Number(limit),
+          page,
+          limit,
           total,
-          pages: Math.ceil(total / Number(limit))
+          pages: Math.ceil(total / limit)
         }
       });
     } catch (error) {

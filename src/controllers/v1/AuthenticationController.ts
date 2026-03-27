@@ -506,6 +506,18 @@ export class AuthenticationController extends BaseController {
       return res.error(
         ErrorCode.INVALID_INPUT,
         result.error || 'Failed to reset password',
+   * Get token status and expiration information
+   * GET /api/v1/auth/token-status
+   */
+  getTokenStatus = this.asyncHandler(async (req: Request, res: Response) => {
+    // Get token from authorization header
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '') || authHeader?.replace('Bearer ', '');
+
+    if (!token) {
+      return res.error(
+        ErrorCode.TOKEN_REQUIRED,
+        'Authorization token is required',
         HttpStatus.BAD_REQUEST
       );
     }
@@ -547,5 +559,42 @@ export class AuthenticationController extends BaseController {
       valid: true,
       email: result.email
     });
+    // Get token status
+    const status = await this.authService.getTokenStatus(token);
+    
+    if (!status.valid) {
+      return res.error(
+        ErrorCode.TOKEN_INVALID,
+        status.error || 'Token is invalid or expired',
+        status.warningLevel === 'expired' ? HttpStatus.UNAUTHORIZED : HttpStatus.BAD_REQUEST,
+        {
+          valid: status.valid,
+          warningLevel: status.warningLevel,
+          expiresAt: status.expiresAt
+        }
+      );
+    }
+
+    // Return token status with appropriate warning level
+    const response: any = {
+      valid: status.valid,
+      expiresAt: status.expiresAt,
+      timeUntilExpiry: status.timeUntilExpiry,
+      warningLevel: status.warningLevel
+    };
+
+    // Add appropriate message based on warning level
+    if (status.warningLevel === 'critical') {
+      response.message = 'Your session will expire in less than 1 minute. Please save your work.';
+      response.actionRequired = true;
+    } else if (status.warningLevel === 'warning') {
+      response.message = 'Your session will expire in less than 5 minutes.';
+      response.actionRequired = false;
+    } else {
+      response.message = 'Session is active';
+      response.actionRequired = false;
+    }
+
+    res.success(response);
   });
 }

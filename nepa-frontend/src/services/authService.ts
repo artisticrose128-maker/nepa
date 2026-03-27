@@ -39,7 +39,9 @@ export interface AuthResponse {
 class AuthService {
   private baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
   private token: string | null = null;
-  private refreshToken: string | null = null;
+  private refreshTokenValue: string | null = null;
+  private tokenExpiryTimer: NodeJS.Timeout | null = null;
+  private warningShown: { warning: boolean; critical: boolean } = { warning: false, critical: false };
 
   constructor() {
     this.loadTokensFromStorage();
@@ -47,21 +49,129 @@ class AuthService {
 
   private loadTokensFromStorage() {
     this.token = localStorage.getItem('authToken');
-    this.refreshToken = localStorage.getItem('refreshToken');
+    this.refreshTokenValue = localStorage.getItem('refreshToken');
   }
 
   private saveTokensToStorage(token: string, refreshToken: string) {
     this.token = token;
-    this.refreshToken = refreshToken;
+    this.refreshTokenValue = refreshToken;
     localStorage.setItem('authToken', token);
     localStorage.setItem('refreshToken', refreshToken);
+    this.startTokenMonitoring();
   }
 
   private clearTokensFromStorage() {
     this.token = null;
-    this.refreshToken = null;
+    this.refreshTokenValue = null;
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
+    this.stopTokenMonitoring();
+    this.warningShown = { warning: false, critical: false };
+  }
+
+  private startTokenMonitoring() {
+    this.stopTokenMonitoring();
+    this.warningShown = { warning: false, critical: false };
+    
+    if (this.token) {
+      this.checkTokenStatus();
+      // Check token status every 30 seconds
+      this.tokenExpiryTimer = setInterval(() => {
+        this.checkTokenStatus();
+      }, 30000);
+    }
+  }
+
+  private stopTokenMonitoring() {
+    if (this.tokenExpiryTimer) {
+      clearInterval(this.tokenExpiryTimer);
+      this.tokenExpiryTimer = null;
+    }
+  }
+
+  private async checkTokenStatus() {
+    if (!this.token) return;
+
+    try {
+      const response = await fetch(`${this.baseURL}/v1/auth/token-status`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const status = await response.json();
+        this.handleTokenStatus(status.data);
+      } else if (response.status === 401) {
+        // Token expired, try to refresh
+        await this.handleTokenExpired();
+      }
+    } catch (error) {
+      console.error('Token status check failed:', error);
+    }
+  }
+
+  private handleTokenStatus(status: any) {
+    const { warningLevel, message, actionRequired } = status;
+    
+    if (warningLevel === 'critical' && !this.warningShown.critical) {
+      this.warningShown.critical = true;
+      this.showTokenExpiryNotification(message, 'critical', actionRequired);
+    } else if (warningLevel === 'warning' && !this.warningShown.warning) {
+      this.warningShown.warning = true;
+      this.showTokenExpiryNotification(message, 'warning', actionRequired);
+    }
+  }
+
+  private showTokenExpiryNotification(message: string, level: 'warning' | 'critical', actionRequired: boolean) {
+    // Create a custom notification event
+    const event = new CustomEvent('tokenExpiry', {
+      detail: { message, level, actionRequired }
+    });
+    window.dispatchEvent(event);
+
+    // Also use browser notification if permission granted
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Session Expiration Warning', {
+        body: message,
+        icon: level === 'critical' ? '/warning-icon.png' : '/info-icon.png',
+        tag: 'token-expiry'
+      });
+    }
+  }
+
+  private async handleTokenExpired() {
+    this.stopTokenMonitoring();
+    
+    if (this.refreshTokenValue) {
+      try {
+        const refreshResult = await this.refreshToken();
+        if (!refreshResult.success) {
+          this.showSessionExpiredNotification();
+        }
+      } catch (error) {
+        this.showSessionExpiredNotification();
+      }
+    } else {
+      this.showSessionExpiredNotification();
+    }
+  }
+
+  private showSessionExpiredNotification() {
+    const event = new CustomEvent('sessionExpired', {
+      detail: { message: 'Your session has expired. Please log in again.' }
+    });
+    window.dispatchEvent(event);
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Session Expired', {
+        body: 'Your session has expired. Please log in again.',
+        icon: '/error-icon.png',
+        tag: 'session-expired'
+      });
+    }
   }
 
   private async request(endpoint: string, options: RequestInit = {}): Promise<Response> {
@@ -183,14 +293,14 @@ class AuthService {
   }
 
   async refreshToken(): Promise<AuthResponse> {
-    if (!this.refreshToken) {
+    if (!this.refreshTokenValue) {
       return { success: false, error: 'No refresh token' };
     }
 
     try {
       const response = await this.request('/auth/refresh', {
         method: 'POST',
-        body: JSON.stringify({ refreshToken: this.refreshToken }),
+        body: JSON.stringify({ refreshToken: this.refreshTokenValue }),
       });
 
       const result = await response.json();

@@ -29,7 +29,7 @@ beforeEach(async () => {
   for (const { tablename } of tablenames) {
     if (tablename !== '_prisma_migrations') {
       try {
-        await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`);
+        await prisma.$executeRaw`TRUNCATE TABLE "public".${tablename} CASCADE;`;
       } catch (error) {
         console.log(`Warning: Could not truncate table ${tablename}`);
       }
