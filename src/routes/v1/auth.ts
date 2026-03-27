@@ -19,6 +19,9 @@ router.use('/register', RateLimiting.RateLimiters.auth);
 router.use('/login', RateLimiting.RateLimiters.auth);
 router.use('/wallet', RateLimiting.RateLimiters.auth);
 router.use('/refresh', RateLimiting.RateLimiters.auth);
+router.use('/forgot-password', RateLimiting.RateLimiters.auth);
+router.use('/reset-password', RateLimiting.RateLimiters.auth);
+router.use('/verify-reset-token', RateLimiting.RateLimiters.auth);
 
 /**
  * @swagger
@@ -447,6 +450,108 @@ router.get('/check-username', authController.checkUsernameAvailability);
 
 /**
  * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     summary: Request password reset
+ *     description: Sends a password reset link to the user's email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *     responses:
+ *       200:
+ *         description: Password reset email sent (always returns success for security)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       429:
+ *         description: Rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.post('/forgot-password', authController.forgotPassword);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     summary: Reset password with token
+ *     description: Resets user password using a valid reset token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, newPassword]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Password reset token from email
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]'
+ *                 description: New password (must contain uppercase, lowercase, number, and special character)
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       400:
+ *         description: Invalid token or password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       429:
+ *         description: Rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.post('/reset-password', authController.resetPassword);
+
+/**
+ * @swagger
+ * /auth/verify-reset-token:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     summary: Verify password reset token
+ *     description: Checks if a password reset token is valid and not expired
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Password reset token to verify
+ *     responses:
+ *       200:
+ *         description: Token verification result
  * /auth/token-status:
  *   get:
  *     tags:
@@ -463,6 +568,21 @@ router.get('/check-username', authController.checkUsernameAvailability);
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 valid:
+ *                   type: boolean
+ *                 email:
+ *                   type: string
+ *                   description: User's email (only if token is valid)
+ *       400:
+ *         description: Invalid or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       429:
+ *         description: Rate limit exceeded
  *                 valid:
  *                   type: boolean
  *                   description: Whether the token is valid
@@ -490,6 +610,7 @@ router.get('/check-username', authController.checkUsernameAvailability);
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
+router.post('/verify-reset-token', authController.verifyResetToken);
 router.get('/token-status', authController.getTokenStatus);
 
 export default router;
