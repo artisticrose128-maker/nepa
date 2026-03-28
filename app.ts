@@ -5,7 +5,7 @@ import { advancedRateLimiter, burstHandler } from './middleware/advancedRateLimi
 import { configureSecurity } from './middleware/security';
 import { apiKeyAuth } from './src/config/auth';
 import { authenticate, authorize, optionalAuth } from './middleware/authentication';
-import { loggingMiddleware, setupGlobalErrorHandling, errorTracker } from './middleware/logger';
+import { loggingMiddleware, setupGlobalErrorHandling, errorTracker, logger } from './middleware/logger';
 import { errorTracker as abuseDetector } from './middleware/abuseDetection';
 import { swaggerSpec } from './swagger';
 import { upload } from './middleware/upload';
@@ -13,6 +13,11 @@ import { uploadDocument } from './controllers/DocumentController';
 import { getDashboardData, generateReport, exportData } from './controllers/AnalyticsController';
 import { applyPaymentSecurity, processPayment, getPaymentHistory, validatePayment } from './controllers/PaymentController';
 import { setupRateLimitRoutes } from './routes/rateLimitRoutes';
+import { AuthenticationController } from './controllers/AuthenticationController';
+import { UserController } from './controllers/UserController';
+import { performanceMonitor } from './services/performanceMonitoring';
+import analyticsService from './services/analytics';
+import { UserRole } from '@prisma/client';
 
 const app = express();
 
@@ -206,7 +211,7 @@ app.post('/api/analytics/reports', apiKeyAuth, generateReport);
 
 // Export Route
 app.get('/api/analytics/export', apiKeyAuth, exportData);
-
-
+// Setup global error handling
+setupGlobalErrorHandling(app);
 
 export default app;

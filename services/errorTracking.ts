@@ -207,7 +207,7 @@ class ErrorTracker {
 
 export const errorTracker = new ErrorTracker();
 
-export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
   const eventId = errorTracker.captureException(error, {
     request: {
       method: req.method,
@@ -227,8 +227,26 @@ export const errorHandler = (error: Error, req: Request, res: Response, next: Ne
     userId: (req as any).user?.id
   });
 
-  res.status(500).json({
-    error: 'Internal Server Error',
+  // Handle Multer errors
+  if (error.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({
+      error: 'File too large',
+      message: 'The uploaded file exceeds the maximum allowed size (10MB)',
+      eventId: process.env.NODE_ENV === 'development' ? eventId : undefined
+    });
+  }
+
+  if (error.name === 'MulterError') {
+    return res.status(400).json({
+      error: 'File upload error',
+      message: error.message,
+      eventId: process.env.NODE_ENV === 'development' ? eventId : undefined
+    });
+  }
+
+  res.status(error.status || 500).json({
+    error: error.name || 'Internal Server Error',
+    message: error.message || 'An unexpected error occurred',
     eventId: process.env.NODE_ENV === 'development' ? eventId : undefined
   });
 };

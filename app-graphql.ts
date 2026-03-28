@@ -167,7 +167,7 @@ async function startServer() {
     });
     
     // Setup global error handling
-    setupGlobalErrorHandling();
+    setupGlobalErrorHandling(app);
     
   } catch (error) {
     logger.error('Failed to start GraphQL server', { error: error.message, stack: error.stack });
