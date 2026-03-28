@@ -26,27 +26,6 @@
   --color-success-foreground: 255 255 255;
   --color-info: 59 130 246;
   --color-info-foreground: 255 255 255;
-  
-  /* Chart Colors */
-  --color-chart-1: 59 130 246;
-  --color-chart-2: 34 197 94;
-  --color-chart-3: 245 158 11;
-  --color-chart-4: 239 68 68;
-  --color-chart-5: 168 85 247;
-  
-  /* Ring Colors */
-  --color-ring: 59 130 246;
-  --color-ring-offset: 255 255 255;
-  
-  /* Radius */
-  --radius: 0.5rem;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 .dark {
@@ -75,24 +54,6 @@
   --color-success-foreground: 15 23 42;
   --color-info: 96 165 250;
   --color-info-foreground: 15 23 42;
-  
-  /* Chart Colors (adjusted for dark mode) */
-  --color-chart-1: 96 165 250;
-  --color-chart-2: 74 222 128;
-  --color-chart-3: 251 191 36;
-  --color-chart-4: 248 113 113;
-  --color-chart-5: 196 181 253;
-  
-  /* Ring Colors */
-  --color-ring: 96 165 250;
-  --color-ring-offset: 15 23 42;
-  
-  /* Shadows (darker for dark mode) */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
 }
 
 /* Utility classes for using theme colors */
