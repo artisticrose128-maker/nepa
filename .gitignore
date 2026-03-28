@@ -102,3 +102,6 @@ Cargo.lock
 
 # Test files
 test-data/
+
+# Exclude Kiro files and folders
+.kiro/
