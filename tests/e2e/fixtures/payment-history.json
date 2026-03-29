@@ -1,0 +1,152 @@
+{
+  "payments": [
+    {
+      "id": "payment-1",
+      "amount": 99.99,
+      "currency": "USD",
+      "status": "completed",
+      "description": "Premium subscription",
+      "date": "2024-01-15T10:30:00Z",
+      "method": "credit_card",
+      "transactionId": "txn_1234567890",
+      "user": {
+        "id": "user-123",
+        "name": "John Doe",
+        "email": "john@example.com"
+      },
+      "metadata": {
+        "plan": "premium",
+        "billingCycle": "monthly",
+        "nextBillingDate": "2024-02-15T10:30:00Z"
+      }
+    },
+    {
+      "id": "payment-2",
+      "amount": 49.99,
+      "currency": "USD",
+      "status": "pending",
+      "description": "Additional services",
+      "date": "2024-01-14T15:30:00Z",
+      "method": "paypal",
+      "transactionId": "paypal_0987654321",
+      "user": {
+        "id": "user-456",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      },
+      "metadata": {
+        "serviceType": "consulting",
+        "hours": 5
+      }
+    },
+    {
+      "id": "payment-3",
+      "amount": 199.99,
+      "currency": "USD",
+      "status": "failed",
+      "description": "Enterprise plan upgrade",
+      "date": "2024-01-13T12:15:00Z",
+      "method": "bank_transfer",
+      "transactionId": "bank_1122334455",
+      "user": {
+        "id": "user-789",
+        "name": "Bob Johnson",
+        "email": "bob@example.com"
+      },
+      "error": {
+        "code": "insufficient_funds",
+        "message": "Insufficient funds in account"
+      },
+      "metadata": {
+        "plan": "enterprise",
+        "billingCycle": "yearly",
+        "retryCount": 2
+      }
+    },
+    {
+      "id": "payment-4",
+      "amount": 29.99,
+      "currency": "EUR",
+      "status": "completed",
+      "description": "Basic subscription",
+      "date": "2024-01-12T09:45:00Z",
+      "method": "sepa_debit",
+      "transactionId": "sepa_5566778899",
+      "user": {
+        "id": "user-101",
+        "name": "Alice Brown",
+        "email": "alice@example.com"
+      },
+      "metadata": {
+        "plan": "basic",
+        "billingCycle": "monthly",
+        "nextBillingDate": "2024-02-12T09:45:00Z"
+      }
+    },
+    {
+      "id": "payment-5",
+      "amount": 149.99,
+      "currency": "USD",
+      "status": "refunded",
+      "description": "Professional subscription (refunded)",
+      "date": "2024-01-11T14:20:00Z",
+      "method": "credit_card",
+      "transactionId": "txn_6677889900",
+      "user": {
+        "id": "user-202",
+        "name": "Charlie Wilson",
+        "email": "charlie@example.com"
+      },
+      "refund": {
+        "amount": 149.99,
+        "reason": "customer_request",
+        "date": "2024-01-11T16:30:00Z",
+        "refundId": "refund_1122334455"
+      },
+      "metadata": {
+        "plan": "professional",
+        "billingCycle": "monthly"
+      }
+    },
+    {
+      "id": "payment-6",
+      "amount": 79.99,
+      "currency": "GBP",
+      "status": "completed",
+      "description": "Team add-on",
+      "date": "2024-01-10T11:00:00Z",
+      "method": "credit_card",
+      "transactionId": "txn_3344556677",
+      "user": {
+        "id": "user-303",
+        "name": "Diana Lee",
+        "email": "diana@example.com"
+      },
+      "metadata": {
+        "addonType": "team",
+        "teamSize": 10,
+        "billingCycle": "monthly"
+      }
+    }
+  ],
+  "summary": {
+    "totalPayments": 6,
+    "completedPayments": 3,
+    "pendingPayments": 1,
+    "failedPayments": 1,
+    "refundedPayments": 1,
+    "totalAmount": 654.94,
+    "totalCompleted": 279.97,
+    "totalPending": 49.99,
+    "totalFailed": 199.99,
+    "totalRefunded": 149.99,
+    "currencies": ["USD", "EUR", "GBP"],
+    "methods": ["credit_card", "paypal", "bank_transfer", "sepa_debit"]
+  },
+  "filters": {
+    "status": ["completed", "pending", "failed", "refunded"],
+    "methods": ["credit_card", "paypal", "bank_transfer", "sepa_debit"],
+    "currencies": ["USD", "EUR", "GBP"],
+    "dateRanges": ["today", "last-7-days", "last-30-days", "last-90-days", "custom"]
+  }
+}

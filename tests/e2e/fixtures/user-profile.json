@@ -1,0 +1,44 @@
+{
+  "id": "test-user-123",
+  "email": "test@example.com",
+  "firstName": "Test",
+  "lastName": "User",
+  "phone": "+1234567890",
+  "avatar": "https://picsum.photos/seed/testuser/100/100.jpg",
+  "status": "active",
+  "role": "user",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-15T00:00:00Z",
+  "preferences": {
+    "theme": "light",
+    "language": "en",
+    "notifications": {
+      "email": true,
+      "push": true,
+      "sms": false
+    },
+    "privacy": {
+      "profileVisibility": "public",
+      "showEmail": false,
+      "showPhone": false
+    }
+  },
+  "security": {
+    "twoFactorEnabled": false,
+    "lastLogin": "2024-01-15T10:30:00Z",
+    "loginAttempts": 0,
+    "passwordChangedAt": "2024-01-01T00:00:00Z"
+  },
+  "subscription": {
+    "plan": "premium",
+    "status": "active",
+    "expiresAt": "2024-12-31T23:59:59Z",
+    "autoRenew": true
+  },
+  "stats": {
+    "totalLogins": 42,
+    "totalTransactions": 156,
+    "totalSpent": 1234.56,
+    "lastTransactionAt": "2024-01-14T15:30:00Z"
+  }
+}

@@ -67,7 +67,10 @@ configureSecurity(app);
 // 4. Body Parsing
 app.use(express.json({ limit: '10kb' })); // Limit body size for security
 
-// 5. Progressive Rate Limiting
+// 5. Input Sanitization
+app.use('/api', sanitizeInput);
+
+// 6. Progressive Rate Limiting
 app.use('/api', progressiveLimiter);
 
 // 6. Audit Context Capture (before rate limiting to capture all requests)
