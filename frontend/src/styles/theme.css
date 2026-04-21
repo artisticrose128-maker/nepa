@@ -26,6 +26,12 @@
   --color-success-foreground: 255 255 255;
   --color-info: 59 130 246;
   --color-info-foreground: 255 255 255;
+  --color-ring: 59 130 246;
+  --color-chart-1: 59 130 246;
+  --color-chart-2: 34 197 94;
+  --color-chart-3: 245 158 11;
+  --color-chart-4: 239 68 68;
+  --color-chart-5: 168 85 247;
 }
 
 .dark {
@@ -54,6 +60,12 @@
   --color-success-foreground: 15 23 42;
   --color-info: 96 165 250;
   --color-info-foreground: 15 23 42;
+  --color-ring: 96 165 250;
+  --color-chart-1: 96 165 250;
+  --color-chart-2: 74 222 128;
+  --color-chart-3: 251 191 36;
+  --color-chart-4: 248 113 113;
+  --color-chart-5: 196 181 253;
 }
 
 /* Utility classes for using theme colors */
@@ -216,7 +228,7 @@
     --color-border: 0 0 0;
     --color-ring: 0 0 0;
   }
-  
+
   .dark {
     --color-border: 255 255 255;
     --color-ring: 255 255 255;
@@ -225,6 +237,7 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {

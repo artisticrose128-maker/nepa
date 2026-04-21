@@ -2,7 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './styles/design-system.css';
 @import './styles/theme.css';
+@import './styles/loading-states.css';
+@import './styles/error-states.css';
+@import './styles/responsive-enhancements.css';
+@import './styles/dark-mode-enhancements.css';
 @import './styles/tablet-responsive.css';
 
 :root {
@@ -21,6 +26,7 @@ a {
   color: rgb(var(--color-primary));
   text-decoration: inherit;
 }
+
 a:hover {
   color: rgb(var(--color-primary));
   opacity: 0.8;
@@ -53,9 +59,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s, background-color 0.25s, color 0.25s;
 }
+
 button:hover {
   border-color: rgb(var(--color-ring));
 }
+
 button:focus,
 button:focus-visible {
   outline: 2px solid rgb(var(--color-ring));
@@ -76,13 +84,13 @@ button:focus-visible {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
-  
+
   .tablet-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
-  
+
   .tablet-flex {
     display: flex;
     gap: 1.5rem;
