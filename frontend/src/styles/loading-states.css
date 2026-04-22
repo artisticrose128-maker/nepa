@@ -1,0 +1,426 @@
+/* Loading States - NEPA Platform */
+
+/* Base Loading Styles */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(var(--color-background) / 0.8);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  background-color: rgb(var(--color-card));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+}
+
+/* Spinner Variants */
+.spinner-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 1px;
+}
+
+.spinner-md {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 2px;
+}
+
+.spinner-lg {
+  width: 2rem;
+  height: 2rem;
+  border-width: 3px;
+}
+
+.spinner-xl {
+  width: 3rem;
+  height: 3rem;
+  border-width: 4px;
+}
+
+/* Pulse Loading Animation */
+.pulse-loading {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: rgb(var(--color-primary));
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+/* Dots Loading Animation */
+.dots-loading {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.dots-loading span {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: rgb(var(--color-primary));
+  border-radius: 50%;
+  animation: dots-bounce 1.4s ease-in-out infinite both;
+}
+
+.dots-loading span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.dots-loading span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes dots-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* Skeleton Loading States */
+.skeleton-text {
+  height: 1em;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-text-sm {
+  height: 0.875em;
+  width: 60%;
+}
+
+.skeleton-text-md {
+  height: 1em;
+  width: 80%;
+}
+
+.skeleton-text-lg {
+  height: 1.25em;
+  width: 90%;
+}
+
+.skeleton-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+}
+
+.skeleton-card {
+  height: 120px;
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-button {
+  height: 2.5rem;
+  width: 100px;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-input {
+  height: 2.5rem;
+  width: 100%;
+  border-radius: var(--radius-md);
+}
+
+/* Component-specific Loading States */
+.loading-button {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.loading-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-table {
+  position: relative;
+}
+
+.loading-table::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(var(--color-background) / 0.8);
+  z-index: 10;
+}
+
+.loading-table::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgb(var(--color-primary));
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 11;
+}
+
+.loading-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--color-muted) / 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.loading-image {
+  background-color: rgb(var(--color-muted));
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-image::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgb(var(--color-border));
+  border-top-color: rgb(var(--color-primary));
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Progress Loading */
+.progress-loading {
+  width: 100%;
+  height: 4px;
+  background-color: rgb(var(--color-muted));
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30%;
+  background-color: rgb(var(--color-primary));
+  border-radius: var(--radius-full);
+  animation: progress-slide 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-slide {
+  0% {
+    left: -30%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Loading States for Different Contexts */
+.loading-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.loading-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  min-height: 200px;
+}
+
+.loading-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(var(--color-background));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+}
+
+/* Loading Messages */
+.loading-message {
+  color: rgb(var(--color-muted-foreground));
+  font-size: var(--text-sm);
+  text-align: center;
+  margin-top: var(--space-4);
+}
+
+.loading-message-lg {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: rgb(var(--color-foreground));
+}
+
+/* Loading States for Forms */
+.loading-form {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading-form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(var(--color-background) / 0.6);
+  backdrop-filter: blur(1px);
+  border-radius: inherit;
+  z-index: 10;
+}
+
+.loading-form::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgb(var(--color-primary));
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 11;
+}
+
+/* Responsive Loading States */
+@media (max-width: 640px) {
+  .loading-container {
+    padding: var(--space-6);
+    min-width: 160px;
+  }
+  
+  .loading-block {
+    padding: var(--space-6);
+    min-height: 150px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .spinner,
+  .pulse-loading,
+  .dots-loading span,
+  .loading-button::after,
+  .loading-table::after,
+  .loading-image::after,
+  .loading-form::after,
+  .progress-loading::after {
+    animation: none !important;
+  }
+  
+  .loading-card::before {
+    animation: none !important;
+  }
+}
+
+/* Screen Reader Support */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Loading State Utilities */
+.loading-suspend {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.loading-suspend * {
+  pointer-events: none;
+}
+
+/* Dark Mode Loading Adjustments */
+.dark .loading-overlay {
+  background-color: rgb(var(--color-background) / 0.9);
+}
+
+.dark .loading-container {
+  background-color: rgb(var(--color-card));
+  box-shadow: var(--shadow-xl);
+}
