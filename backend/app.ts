@@ -21,6 +21,9 @@ import { applyPaymentSecurity, processPayment, getPaymentHistory, validatePaymen
 import { setupRateLimitRoutes } from './routes/rateLimitRoutes';
 import { performanceMonitor } from './services/performanceMonitoring';
 import analyticsService from './services/analytics';
+import { appConfig } from './src/config/environment';
+import ConnectionPoolMonitor from './databases/monitoring/ConnectionPoolMonitor';
+import DatabaseHealthCheck from './databases/monitoring/DatabaseHealthCheck';
 import { UserRole } from '@prisma/client';
 
 const app = express();
@@ -44,17 +47,26 @@ initializeCacheSystem().then(result => {
 
 // Initialize logging and monitoring
 logger.info('Application starting up', {
-  nodeEnv: process.env.NODE_ENV,
-  version: process.env.npm_package_version
+  nodeEnv: appConfig.nodeEnv,
+  version: process.env.npm_package_version,
+  enablePerformanceMetrics: appConfig.enablePerformanceMetrics,
+  enableDbPoolMonitoring: appConfig.enableDbPoolMonitoring,
 });
 
 // Initialize error tracking if DSN is provided
-if (process.env.SENTRY_DSN) {
+if (appConfig.sentryDsn) {
   errorTracker.initialize({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV || 'development',
+    dsn: appConfig.sentryDsn,
+    environment: appConfig.nodeEnv,
     tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
     release: process.env.npm_package_version
+  });
+}
+
+if (appConfig.enableDbPoolMonitoring) {
+  ConnectionPoolMonitor.startMonitoring(appConfig.dbPoolMonitoringInterval);
+  logger.info('Database connection pool monitoring enabled', {
+    intervalMs: appConfig.dbPoolMonitoringInterval
   });
 }
 
@@ -126,16 +138,30 @@ app.get('/health', (req, res) => {
 });
 
 // 10. Monitoring endpoints (unversioned)
-app.get('/api/monitoring/metrics', apiKeyAuth, (req, res) => {
+app.get('/api/monitoring/metrics', apiKeyAuth, async (req, res) => {
   const analytics = analyticsService.getAnalyticsData();
   const performance = performanceMonitor.getHealthStatus();
+  const dbPoolMetrics = await ConnectionPoolMonitor.getAllPoolMetrics();
+  const databaseHealth = await DatabaseHealthCheck.getHealthReport();
 
   res.json({
     analytics,
     performance,
     requestMetrics: performanceMonitor.getRequestMetrics(100),
-    customMetrics: performanceMonitor.getCustomMetrics(100)
+    customMetrics: performanceMonitor.getCustomMetrics(100),
+    dbPoolMetrics,
+    databaseHealth
   });
+});
+
+app.get('/api/monitoring/db-pools', apiKeyAuth, async (_req, res) => {
+  const dbPoolMetrics = await ConnectionPoolMonitor.getAllPoolMetrics();
+  res.json({ status: 'ok', dbPoolMetrics });
+});
+
+app.get('/api/monitoring/db-health', apiKeyAuth, async (_req, res) => {
+  const databaseHealth = await DatabaseHealthCheck.getHealthReport();
+  res.json({ status: 'ok', databaseHealth });
 });
 
 // 11. API version discovery (no auth required for discovery)

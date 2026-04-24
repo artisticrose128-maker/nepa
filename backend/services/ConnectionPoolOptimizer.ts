@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { getDatabasePoolConfig } from '../src/config/environment';
 
 interface PoolConfiguration {
   connectionLimit: number;
@@ -25,30 +26,13 @@ export class ConnectionPoolOptimizer {
   }
 
   private setupDefaultConfigurations(): void {
-    // Default configuration optimized for heavy load
-    const defaultConfig: PoolConfiguration = {
-      connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '50'),
-      poolTimeout: parseInt(process.env.DB_POOL_TIMEOUT_SECONDS || '30'),
-      connectTimeout: parseInt(process.env.DB_CONNECT_TIMEOUT_SECONDS || '15'),
-      idleTimeout: parseInt(process.env.DB_IDLE_TIMEOUT_SECONDS || '600'),
-      maxLifetime: parseInt(process.env.DB_MAX_LIFETIME_SECONDS || '3600'),
-      maxUses: parseInt(process.env.DB_MAX_USES || '10000')
-    };
+    // Load environment-specific pool defaults from the shared environment config
+    const defaultConfig: PoolConfiguration = getDatabasePoolConfig('default');
 
-    // Configuration for different service types
+    // Configuration for different service types with environment-aware defaults
     this.configurations.set('default', defaultConfig);
-    this.configurations.set('high-traffic', {
-      ...defaultConfig,
-      connectionLimit: 100,
-      poolTimeout: 45,
-      idleTimeout: 300
-    });
-    this.configurations.set('background', {
-      ...defaultConfig,
-      connectionLimit: 20,
-      poolTimeout: 60,
-      idleTimeout: 1200
-    });
+    this.configurations.set('high-traffic', getDatabasePoolConfig('high-traffic'));
+    this.configurations.set('background', getDatabasePoolConfig('background'));
   }
 
   public optimizeDatabaseUrl(url: string, serviceType: string = 'default'): string {

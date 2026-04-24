@@ -16,7 +16,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:cypress": "cypress open",
     "test:cypress:headless": "cypress run",
-    "test:ci": "jest --coverage && playwright test"
+    "test:ci": "jest --coverage && playwright test",
+    "test:accessibility": "jest --runInBand src/tests/accessibility.test.tsx"
   },
   "dependencies": {
     "@stellar/freighter-api": "^6.0.1",
@@ -58,6 +59,7 @@
     "ts-jest": "^29.4.9",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
+    "jest-axe": "^7.1.0",
     "vite": "^8.0.0-beta.13"
   },
   "overrides": {

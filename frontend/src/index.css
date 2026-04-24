@@ -65,9 +65,25 @@ button:hover {
 }
 
 button:focus,
-button:focus-visible {
+button:focus-visible,
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+a:focus,
+a:focus-visible {
   outline: 2px solid rgb(var(--color-ring));
   outline-offset: 2px;
+}
+
+button:hover,
+a:hover,
+input:hover,
+select:hover,
+textarea:hover {
+  opacity: 0.95;
 }
 
 /* Custom responsive utilities */
