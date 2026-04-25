@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { ariaLabels, getAriaAttributes, keyboardKeys } from '../utils/accessibility';
+import Tooltip from './Tooltip';
 
 interface ThemeToggleProps {
   className?: string;
