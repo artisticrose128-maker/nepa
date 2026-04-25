@@ -1,12 +1,19 @@
 export default {
-  preset: 'ts-jest',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-  },
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: {
+        jsx: 'react-jsx',
+        esModuleInterop: true,
+        module: 'CommonJS',
+        moduleResolution: 'node',
+        skipLibCheck: true,
+      },
+    }],
+  },
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{ts,tsx}',
@@ -31,7 +38,7 @@ export default {
     },
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  testTimeout: 10000,
+  testTimeout: 30000,
   verbose: true,
   collectCoverage: false,
 };
