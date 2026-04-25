@@ -3,6 +3,11 @@ import Sidebar from './components/Sidebar';
 import TimePicker from './components/TimePicker';
 import PaymentIntegration from './components/PaymentIntegration';
 import DataTable from './components/DataTable';
+import { LoadingProvider } from './contexts/LoadingContext';
+import { LoadingButton } from './components/LoadingButton';
+import { LoadingCard, LoadingGrid } from './components/LoadingCard';
+import { ProgressBar } from './components/ProgressBar';
+import { Home, Zap, CreditCard, History, Settings, Clock, Table } from 'lucide-react';
 import { AdvancedFileUpload } from './components/AdvancedFileUpload';
 import { ToastContainer } from './components/ToastContainer';
 import { NotificationDemo } from './components/NotificationDemo';
@@ -503,6 +508,10 @@ const App: React.FC = () => {
   };
 
   return (
+    <LoadingProvider>
+      <div className="min-h-screen bg-gray-50">
+        <Sidebar 
+          items={sidebarItems}
     <div className="min-h-screen bg-gray-50 mobile-safe-area">
       <div className="flex">
         {/* Sidebar */}
@@ -511,9 +520,23 @@ const App: React.FC = () => {
           onToggle={() => setSidebarOpen(!sidebarOpen)}
           activeItem={activeView}
           onItemClick={handleSidebarItemClick}
+          open={sidebarOpen}
+          onToggle={setSidebarOpen}
           collapsed={sidebarCollapsed}
-          onCollapsedChange={setSidebarCollapsed}
+          onCollapseToggle={setSidebarCollapsed}
         />
+        
+        <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'} ${sidebarCollapsed ? 'ml-16' : ''}`}>
+          {/* Header */}
+          <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-semibold text-gray-900">NEPA Payment System</h1>
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-md hover:bg-gray-100 lg:hidden"
+              >
+                <Table className="w-5 h-5" />
+              </button>
 
         {/* Main Content */}
         <div className={`flex-1 transition-all duration-300 ${
@@ -542,6 +565,7 @@ const App: React.FC = () => {
           </main>
         </div>
       </div>
+    </LoadingProvider>
     </div>
     <FilterProvider>
       <SearchProvider>
