@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { Pagination, usePaginationPerformance } from './Pagination';
+import { paginationAccessibility } from '../utils/accessibility';
 
 interface YieldData {
   date: string;
@@ -33,6 +35,15 @@ const YieldDashboard: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
   const [totalInvested, setTotalInvested] = useState(0);
   const [totalEarned, setTotalEarned] = useState(0);
+  
+  // Pagination state for positions
+  const [positionsPage, setPositionsPage] = useState(1);
+  const [positionsPageSize] = useState(5); // Fixed small size for dashboard
+  const [alertsPage, setAlertsPage] = useState(1);
+  const [alertsPageSize] = useState(5);
+  
+  // Performance optimization
+  const { visibleData: visiblePositions } = usePaginationPerformance(positions, positionsPageSize);
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
@@ -174,6 +185,30 @@ const YieldDashboard: React.FC = () => {
     }
   };
 
+  // Pagination handlers
+  const handlePositionsPageChange = useCallback((page: number) => {
+    setPositionsPage(page);
+    paginationAccessibility.announcePageChange(page, Math.ceil(positions.length / positionsPageSize));
+  }, [positions.length, positionsPageSize]);
+
+  const handleAlertsPageChange = useCallback((page: number) => {
+    setAlertsPage(page);
+    paginationAccessibility.announcePageChange(page, Math.ceil(alerts.length / alertsPageSize));
+  }, [alerts.length, alertsPageSize]);
+
+  // Paginated data
+  const paginatedPositions = useMemo(() => {
+    const startIndex = (positionsPage - 1) * positionsPageSize;
+    const endIndex = startIndex + positionsPageSize;
+    return positions.slice(startIndex, endIndex);
+  }, [positions, positionsPage, positionsPageSize]);
+
+  const paginatedAlerts = useMemo(() => {
+    const startIndex = (alertsPage - 1) * alertsPageSize;
+    const endIndex = startIndex + alertsPageSize;
+    return alerts.slice(startIndex, endIndex);
+  }, [alerts, alertsPage, alertsPageSize]);
+
   if (loading && yieldData.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -304,7 +339,7 @@ const YieldDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {positions.map((position) => (
+                    {paginatedPositions.map((position) => (
                       <tr key={position.id} className="border-b">
                         <td className="py-2 px-2 sm:px-0 text-xs sm:text-sm">
                           <div className="truncate max-w-[100px] sm:max-w-none">
@@ -329,6 +364,25 @@ const YieldDashboard: React.FC = () => {
                 </table>
               </div>
             </div>
+            
+            {/* Positions Pagination */}
+            {positions.length > positionsPageSize && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <Pagination
+                  currentPage={positionsPage}
+                  totalPages={Math.ceil(positions.length / positionsPageSize)}
+                  totalCount={positions.length}
+                  pageSize={positionsPageSize}
+                  onPageChange={handlePositionsPageChange}
+                  onPageSizeChange={() => {}} // Fixed page size for dashboard
+                  variant="compact"
+                  showPageSizeSelector={false}
+                  showPageInfo={true}
+                  showJumpToPage={false}
+                  ariaLabel="Positions pagination"
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -339,7 +393,7 @@ const YieldDashboard: React.FC = () => {
             {alerts.length === 0 ? (
               <p className="text-gray-500 text-sm sm:text-base">No recent alerts</p>
             ) : (
-              alerts.map((alert) => (
+              paginatedAlerts.map((alert) => (
                 <div
                   key={alert.id}
                   className={`p-3 rounded-lg border ${getSeverityColor(alert.severity)}`}
@@ -359,6 +413,25 @@ const YieldDashboard: React.FC = () => {
               ))
             )}
           </div>
+          
+          {/* Alerts Pagination */}
+          {alerts.length > alertsPageSize && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <Pagination
+                currentPage={alertsPage}
+                totalPages={Math.ceil(alerts.length / alertsPageSize)}
+                totalCount={alerts.length}
+                pageSize={alertsPageSize}
+                onPageChange={handleAlertsPageChange}
+                onPageSizeChange={() => {}} // Fixed page size for dashboard
+                variant="compact"
+                showPageSizeSelector={false}
+                showPageInfo={true}
+                showJumpToPage={false}
+                ariaLabel="Alerts pagination"
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

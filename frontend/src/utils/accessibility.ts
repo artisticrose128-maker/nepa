@@ -38,6 +38,19 @@ export const ariaLabels = {
   expandDetails: 'Expand payment details',
   collapseDetails: 'Collapse payment details',
   viewMore: 'View more payment details',
+  
+  // Pagination
+  pagination: 'Pagination navigation',
+  firstPage: 'Go to first page',
+  lastPage: 'Go to last page',
+  previousPage: 'Go to previous page',
+  nextPage: 'Go to next page',
+  currentPage: 'Current page',
+  pageButton: (page: number) => `Go to page ${page}`,
+  pageSizeSelector: 'Select number of items per page',
+  jumpToPage: 'Jump to specific page',
+  infiniteScrollLoad: 'Load more items',
+  infiniteScrollEnd: 'No more items to load',
 };
 
 /**
@@ -250,4 +263,113 @@ export const prefersReducedMotion = (): boolean => {
  */
 export const prefersHighContrast = (): boolean => {
   return window.matchMedia('(prefers-contrast: high)').matches;
+};
+
+/**
+ * Pagination accessibility utilities
+ */
+export const paginationAccessibility = {
+  /**
+   * Announce page change to screen readers
+   */
+  announcePageChange: (currentPage: number, totalPages: number, itemCount?: number) => {
+    let message = `Page ${currentPage} of ${totalPages}`;
+    if (itemCount !== undefined) {
+      message += `, showing ${itemCount} items`;
+    }
+    announceToScreenReader(message, 'polite');
+  },
+
+  /**
+   * Announce page size change
+   */
+  announcePageSizeChange: (pageSize: number) => {
+    announceToScreenReader(`Showing ${pageSize} items per page`, 'polite');
+  },
+
+  /**
+   * Announce loading state for infinite scroll
+   */
+  announceInfiniteScrollLoading: (isLoading: boolean, hasMore: boolean) => {
+    if (isLoading) {
+      announceToScreenReader('Loading more items', 'polite');
+    } else if (!hasMore) {
+      announceToScreenReader('No more items to load', 'polite');
+    }
+  },
+
+  /**
+   * Get keyboard navigation pattern for pagination
+   */
+  getKeyboardNavigation: () => ({
+    next: [keyboardKeys.ARROW_RIGHT, keyboardKeys.PAGE_DOWN],
+    previous: [keyboardKeys.ARROW_LEFT, keyboardKeys.PAGE_UP],
+    first: [keyboardKeys.HOME],
+    last: [keyboardKeys.END],
+    jump: [keyboardKeys.ENTER],
+  }),
+
+  /**
+   * Handle keyboard navigation for pagination
+   */
+  handleKeyboardNavigation: (
+    event: KeyboardEvent,
+    currentPage: number,
+    totalPages: number,
+    onPageChange: (page: number) => void
+  ) => {
+    const { next, previous, first, last } = paginationAccessibility.getKeyboardNavigation();
+    
+    if (next.includes(event.key)) {
+      event.preventDefault();
+      if (currentPage < totalPages) {
+        onPageChange(currentPage + 1);
+      }
+    } else if (previous.includes(event.key)) {
+      event.preventDefault();
+      if (currentPage > 1) {
+        onPageChange(currentPage - 1);
+      }
+    } else if (first.includes(event.key)) {
+      event.preventDefault();
+      if (currentPage !== 1) {
+        onPageChange(1);
+      }
+    } else if (last.includes(event.key)) {
+      event.preventDefault();
+      if (currentPage !== totalPages) {
+        onPageChange(totalPages);
+      }
+    }
+  },
+
+  /**
+   * Generate ARIA attributes for pagination controls
+   */
+  getPaginationAttributes: (currentPage: number, totalPages: number) => ({
+    'aria-label': ariaLabels.pagination,
+    'aria-current': currentPage.toString(),
+    'aria-setsize': totalPages.toString(),
+    'aria-posinset': currentPage.toString(),
+  }),
+
+  /**
+   * Generate ARIA attributes for page buttons
+   */
+  getPageButtonAttributes: (page: number, currentPage: number, isDisabled: boolean = false) => ({
+    'aria-label': ariaLabels.pageButton(page),
+    'aria-current': page === currentPage ? 'page' : undefined,
+    'aria-disabled': isDisabled.toString(),
+    'role': 'button',
+    'tabIndex': isDisabled ? -1 : 0,
+  }),
+
+  /**
+   * Generate ARIA attributes for infinite scroll
+   */
+  getInfiniteScrollAttributes: (isLoading: boolean, hasMore: boolean) => ({
+    'aria-label': ariaLabels.infiniteScrollLoad,
+    'aria-busy': isLoading.toString(),
+    'aria-live': hasMore ? 'polite' : 'off',
+  }),
 };

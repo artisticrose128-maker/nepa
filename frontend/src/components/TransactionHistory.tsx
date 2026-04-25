@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Transaction, TransactionHistory, TransactionFilters, PaymentStatus } from '../types';
 import TransactionService from '../services/transactionService';
 import { Loading } from './Loading';
 import BookmarkService from '../services/bookmarkService';
 import { Star, Trash2, CheckCircle, FileText, Download } from 'lucide-react';
 import { AdvancedDataTable } from './AdvancedDataTable';
+import { Pagination, InfiniteScroll, usePaginationPerformance } from './Pagination';
+import { paginationAccessibility } from '../utils/accessibility';
 
 interface Props {
   className?: string;
@@ -26,8 +28,15 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
     totalCount: 0,
     hasNextPage: false,
   });
+  const [pageSize, setPageSize] = useState(10);
+  const [paginationMode, setPaginationMode] = useState<'traditional' | 'infinite'>('traditional');
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [selectedRows, setSelectedRows] = useState<Transaction[]>([]);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  
+  // Performance optimization for large datasets
+  const { visibleData, updateStartIndex } = usePaginationPerformance(transactions, pageSize);
+  const paginationRef = useRef<HTMLDivElement>(null);
 
   // Check bookmarks on mount
   useEffect(() => {
@@ -40,25 +49,39 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
     loadTransactions();
   }, [filters]);
 
-  const loadTransactions = async () => {
+  const loadTransactions = async (resetPage: boolean = false) => {
     try {
       setLoading(true);
       setError(null);
       
-      const result: TransactionHistory = await TransactionService.getTransactionHistory(filters);
+      // Reset to page 1 if filters changed
+      const currentFilters = resetPage ? { ...filters, page: 1, limit: pageSize } : { ...filters, page: pagination.currentPage, limit: pageSize };
       
-      setTransactions(result.transactions);
+      const result: TransactionHistory = await TransactionService.getTransactionHistory(currentFilters);
+      
+      if (paginationMode === 'infinite' && !resetPage) {
+        // Append for infinite scroll
+        setTransactions(prev => [...prev, ...result.transactions]);
+      } else {
+        // Replace for traditional pagination or reset
+        setTransactions(result.transactions);
+      }
+      
       setPagination({
         currentPage: result.currentPage,
         totalPages: result.totalPages,
         totalCount: result.totalCount,
         hasNextPage: result.hasNextPage,
       });
+
+      // Announce page change for accessibility
+      paginationAccessibility.announcePageChange(result.currentPage, result.totalPages, result.transactions.length);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load transactions');
       setTransactions([]);
     } finally {
       setLoading(false);
+      setIsFetchingNextPage(false);
     }
   };
 
@@ -67,8 +90,51 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
       ...prev,
       [key]: value || undefined,
       page: key === 'page' ? value : 1, // Reset to page 1 when filters change
+      limit: pageSize,
     }));
   };
+
+  // Enhanced pagination handlers
+  const handlePageChange = useCallback((newPage: number) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination(prev => ({ ...prev, currentPage: newPage }));
+      setFilters(prev => ({ ...prev, page: newPage }));
+    }
+  }, [pagination.totalPages]);
+
+  const handlePageSizeChange = useCallback((newPageSize: number) => {
+    setPageSize(newPageSize);
+    setFilters(prev => ({ ...prev, limit: newPageSize, page: 1 }));
+    paginationAccessibility.announcePageSizeChange(newPageSize);
+  }, []);
+
+  const handleLoadMore = useCallback(() => {
+    if (pagination.hasNextPage && !isFetchingNextPage && paginationMode === 'infinite') {
+      setIsFetchingNextPage(true);
+      const nextPage = pagination.currentPage + 1;
+      setPagination(prev => ({ ...prev, currentPage: nextPage }));
+      setFilters(prev => ({ ...prev, page: nextPage }));
+      loadTransactions(false);
+    }
+  }, [pagination.hasNextPage, isFetchingNextPage, paginationMode, pagination.currentPage]);
+
+  const handlePaginationModeChange = useCallback((mode: 'traditional' | 'infinite') => {
+    setPaginationMode(mode);
+    setTransactions([]); // Reset transactions
+    loadTransactions(true); // Reload with new mode
+  }, []);
+
+  // Keyboard navigation for pagination
+  const handlePaginationKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (paginationRef.current) {
+      paginationAccessibility.handleKeyboardNavigation(
+        event.nativeEvent,
+        pagination.currentPage,
+        pagination.totalPages,
+        handlePageChange
+      );
+    }
+  }, [pagination.currentPage, pagination.totalPages, handlePageChange]);
 
   const handleSearch = (searchTerm: string) => {
     if (searchTerm.trim()) {
@@ -139,7 +205,8 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
   };
 
   const clearFilters = () => {
-    setFilters({});
+    setFilters({ limit: pageSize });
+    setTransactions([]); // Reset for infinite scroll
   };
 
   const filteredTransactions = useMemo(() => transactions, [transactions]);
@@ -163,7 +230,7 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
           </p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <button
             onClick={() => setShowFilters((prev: boolean) => !prev)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -185,6 +252,30 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
               'Export CSV'
             )}
           </button>
+
+          {/* Pagination Mode Toggle */}
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => handlePaginationModeChange('traditional')}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                paginationMode === 'traditional'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Traditional
+            </button>
+            <button
+              onClick={() => handlePaginationModeChange('infinite')}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                paginationMode === 'infinite'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Infinite Scroll
+            </button>
+          </div>
         </div>
       </div>
 
@@ -318,22 +409,29 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
       </div>
 
       {/* Transactions List */}
-      {loading && transactions.length > 0 && (
-        <div className="flex justify-center items-center py-8">
-          <Loading size="md" label="Updating transactions..." />
-        </div>
-      )}
-      
-      {filteredTransactions.length === 0 && !loading ? (
-        <div className="text-center py-12">
-          <div className="text-gray-500 text-lg">No transactions found</div>
-          <p className="text-gray-400 mt-2">Try adjusting your filters or search terms</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+      {paginationMode === 'infinite' ? (
+        <InfiniteScroll
+          hasNextPage={pagination.hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onLoadMore={handleLoadMore}
+          loading={loading}
+          disabled={loading}
+          threshold={200}
+          className="bg-white rounded-lg shadow overflow-hidden"
+          loader={
+            <div className="flex justify-center items-center py-8">
+              <Loading size="md" label="Loading more transactions..." />
+            </div>
+          }
+          endMessage={
+            <div className="text-center py-8 border-t border-gray-200">
+              <div className="text-gray-500">End of transaction history</div>
+            </div>
+          }
+        >
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date & Time
@@ -356,7 +454,7 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredTransactions.map((transaction) => (
+                {transactions.map((transaction) => (
                   <tr key={transaction.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {TransactionService.formatDate(transaction.date)}
@@ -397,31 +495,112 @@ export const TransactionHistoryComponent: React.FC<Props> = ({ className = '' })
               </tbody>
             </table>
           </div>
-        </div>
+        </InfiniteScroll>
+      ) : (
+        <>
+          {loading && transactions.length > 0 && (
+            <div className="flex justify-center items-center py-8">
+              <Loading size="md" label="Updating transactions..." />
+            </div>
+          )}
+          
+          {filteredTransactions.length === 0 && !loading ? (
+            <div className="text-center py-12">
+              <div className="text-gray-500 text-lg">No transactions found</div>
+              <p className="text-gray-400 mt-2">Try adjusting your filters or search terms</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date & Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Transaction ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Meter ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredTransactions.map((transaction) => (
+                      <tr key={transaction.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {TransactionService.formatDate(transaction.date)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className="font-mono text-xs">{transaction.id}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {transaction.meterId}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {TransactionService.formatAmount(transaction.amount)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TransactionService.getStatusColor(transaction.status)}`}>
+                            <span className="mr-1">{TransactionService.getStatusIcon(transaction.status)}</span>
+                            {transaction.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleViewReceipt(transaction)}
+                              className="text-blue-600 hover:text-blue-900 font-medium"
+                            >
+                              View Receipt
+                            </button>
+                            <button
+                              onClick={() => handleDownloadReceipt(transaction.id)}
+                              className="text-green-600 hover:text-green-900 font-medium"
+                            >
+                              Download PDF
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="mt-6 flex justify-center items-center space-x-2">
-          <button
-            onClick={() => handleFilterChange('page', Math.max(1, pagination.currentPage - 1))}
-            disabled={pagination.currentPage <= 1}
-            className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          
-          <span className="px-4 py-2">
-            Page {pagination.currentPage} of {pagination.totalPages}
-          </span>
-          
-          <button
-            onClick={() => handleFilterChange('page', Math.min(pagination.totalPages, pagination.currentPage + 1))}
-            disabled={pagination.currentPage >= pagination.totalPages}
-            className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-          >
-            Next
-          </button>
+      {/* Enhanced Pagination */}
+      {paginationMode === 'traditional' && pagination.totalPages > 1 && (
+        <div ref={paginationRef} onKeyDown={handlePaginationKeyDown}>
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            totalCount={pagination.totalCount}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            loading={loading}
+            disabled={loading}
+            showPageSizeSelector={true}
+            showPageInfo={true}
+            showJumpToPage={true}
+            maxVisiblePages={7}
+            pageSizeOptions={[10, 25, 50, 100, 200]}
+            ariaLabel="Transaction history pagination"
+          />
         </div>
       )}
       {/* Transactions Table */}
