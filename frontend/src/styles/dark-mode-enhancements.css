@@ -1,0 +1,457 @@
+/* Dark Mode Enhancements - NEPA Platform */
+
+/* Smooth theme transitions */
+* {
+  transition: 
+    background-color var(--transition-base) ease,
+    border-color var(--transition-base) ease,
+    color var(--transition-base) ease,
+    fill var(--transition-base) ease,
+    stroke var(--transition-base) ease,
+    box-shadow var(--transition-base) ease;
+}
+
+/* Dark mode specific adjustments */
+.dark {
+  /* Enhanced contrast for better readability */
+  --color-muted-foreground: 148 163 184;
+  --color-border: 51 65 85;
+  --color-input: 30 41 59;
+  
+  /* Subtle shadows for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: rgb(var(--color-muted));
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-muted-foreground) / 0.3);
+  border-radius: var(--radius-full);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-muted-foreground) / 0.5);
+}
+
+/* Dark mode selection */
+.dark ::selection {
+  background-color: rgb(var(--color-primary) / 0.3);
+  color: rgb(var(--color-primary-foreground));
+}
+
+/* Dark mode focus styles */
+.dark .focus-visible:focus-visible {
+  outline: 2px solid rgb(var(--color-ring));
+  outline-offset: 2px;
+}
+
+/* Dark mode component adjustments */
+.dark .card {
+  border-color: rgb(var(--color-border) / 0.5);
+  box-shadow: var(--shadow-md);
+}
+
+.dark .card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: rgb(var(--color-border) / 0.8);
+}
+
+.dark .btn {
+  box-shadow: var(--shadow-sm);
+}
+
+.dark .btn:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.dark .input {
+  background-color: rgb(var(--color-input));
+  border-color: rgb(var(--color-border));
+}
+
+.dark .input:focus {
+  border-color: rgb(var(--color-ring));
+  box-shadow: 0 0 0 1px rgb(var(--color-ring));
+}
+
+/* Dark mode table adjustments */
+.dark .table {
+  border-color: rgb(var(--color-border) / 0.5);
+}
+
+.dark .table th {
+  background-color: rgb(var(--color-muted));
+  border-color: rgb(var(--color-border) / 0.3);
+}
+
+.dark .table td {
+  border-color: rgb(var(--color-border) / 0.2);
+}
+
+.dark .table tr:hover {
+  background-color: rgb(var(--color-muted) / 0.5);
+}
+
+/* Dark mode code blocks */
+.dark code {
+  background-color: rgb(var(--color-muted));
+  color: rgb(var(--color-foreground));
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875em;
+}
+
+.dark pre {
+  background-color: rgb(var(--color-muted));
+  border: 1px solid rgb(var(--color-border));
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  overflow-x: auto;
+}
+
+.dark pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Dark mode syntax highlighting */
+.dark .hljs {
+  background: rgb(var(--color-muted));
+  color: rgb(var(--color-foreground));
+}
+
+.dark .hljs-keyword {
+  color: rgb(var(--color-primary));
+}
+
+.dark .hljs-string {
+  color: rgb(var(--color-success));
+}
+
+.dark .hljs-number {
+  color: rgb(var(--color-warning));
+}
+
+.dark .hljs-comment {
+  color: rgb(var(--color-muted-foreground));
+}
+
+/* Dark mode charts and graphs */
+.dark .chart-container {
+  background-color: rgb(var(--color-card));
+  border: 1px solid rgb(var(--color-border));
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.dark .chart-grid {
+  stroke: rgb(var(--color-border) / 0.3);
+}
+
+.dark .chart-axis {
+  stroke: rgb(var(--color-muted-foreground));
+}
+
+.dark .chart-text {
+  fill: rgb(var(--color-muted-foreground));
+}
+
+/* Dark mode modal and overlay adjustments */
+.dark .modal-overlay {
+  background-color: rgb(0 0 0 / 0.8);
+}
+
+.dark .modal-content {
+  background-color: rgb(var(--color-card));
+  border: 1px solid rgb(var(--color-border));
+  box-shadow: var(--shadow-2xl);
+}
+
+/* Dark mode dropdown adjustments */
+.dark .dropdown-content {
+  background-color: rgb(var(--color-popover));
+  border: 1px solid rgb(var(--color-border));
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .dropdown-item {
+  color: rgb(var(--color-popover-foreground));
+}
+
+.dark .dropdown-item:hover {
+  background-color: rgb(var(--color-accent));
+}
+
+/* Dark mode tooltip adjustments */
+.dark .tooltip-content {
+  background-color: rgb(var(--color-popover));
+  color: rgb(var(--color-popover-foreground));
+  border: 1px solid rgb(var(--color-border));
+  box-shadow: var(--shadow-lg);
+}
+
+/* Dark mode navigation adjustments */
+.dark .nav-link {
+  color: rgb(var(--color-foreground));
+}
+
+.dark .nav-link:hover {
+  color: rgb(var(--color-primary));
+}
+
+.dark .nav-link.active {
+  color: rgb(var(--color-primary));
+  background-color: rgb(var(--color-accent));
+}
+
+/* Dark mode sidebar adjustments */
+.dark .sidebar {
+  background-color: rgb(var(--color-card));
+  border-color: rgb(var(--color-border));
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .sidebar-item {
+  color: rgb(var(--color-foreground));
+}
+
+.dark .sidebar-item:hover {
+  background-color: rgb(var(--color-accent));
+}
+
+.dark .sidebar-item.active {
+  background-color: rgb(var(--color-accent));
+  color: rgb(var(--color-primary));
+}
+
+/* Dark mode footer adjustments */
+.dark .footer {
+  background-color: rgb(var(--color-muted));
+  border-color: rgb(var(--color-border));
+}
+
+/* Dark mode header adjustments */
+.dark .header {
+  background-color: rgb(var(--color-card));
+  border-color: rgb(var(--color-border));
+  box-shadow: var(--shadow-md);
+}
+
+/* Dark mode pagination adjustments */
+.dark .pagination-link {
+  background-color: rgb(var(--color-card));
+  border-color: rgb(var(--color-border));
+  color: rgb(var(--color-foreground));
+}
+
+.dark .pagination-link:hover {
+  background-color: rgb(var(--color-accent));
+  border-color: rgb(var(--color-border));
+}
+
+.dark .pagination-link.active {
+  background-color: rgb(var(--color-primary));
+  border-color: rgb(var(--color-primary));
+  color: rgb(var(--color-primary-foreground));
+}
+
+/* Dark mode badge adjustments */
+.dark .badge {
+  border-color: rgb(var(--color-border) / 0.5);
+}
+
+/* Dark mode progress bar adjustments */
+.dark .progress {
+  background-color: rgb(var(--color-muted));
+}
+
+.dark .progress-bar {
+  background-color: rgb(var(--color-primary));
+}
+
+/* Dark mode skeleton adjustments */
+.dark .skeleton {
+  background: linear-gradient(90deg, 
+    rgb(var(--color-muted)) 25%, 
+    rgb(var(--color-muted) / 0.7) 50%, 
+    rgb(var(--color-muted)) 75%
+  );
+}
+
+/* Dark mode loading states */
+.dark .loading-overlay {
+  background-color: rgb(var(--color-background) / 0.9);
+}
+
+.dark .loading-container {
+  background-color: rgb(var(--color-card));
+  border: 1px solid rgb(var(--color-border));
+  box-shadow: var(--shadow-xl);
+}
+
+/* Dark mode error states */
+.dark .error-container {
+  background-color: rgb(var(--color-card));
+}
+
+.dark .error-modal {
+  background-color: rgb(var(--color-background) / 0.95);
+}
+
+.dark .error-toast {
+  background-color: rgb(var(--color-card));
+  border-color: rgb(var(--color-destructive) / 0.5);
+}
+
+/* Dark mode alert adjustments */
+.dark .alert {
+  border-color: rgb(var(--color-border) / 0.5);
+}
+
+.dark .alert-success {
+  background-color: rgb(var(--color-success) / 0.15);
+  border-color: rgb(var(--color-success) / 0.5);
+}
+
+.dark .alert-warning {
+  background-color: rgb(var(--color-warning) / 0.15);
+  border-color: rgb(var(--color-warning) / 0.5);
+}
+
+.dark .alert-destructive {
+  background-color: rgb(var(--color-destructive) / 0.15);
+  border-color: rgb(var(--color-destructive) / 0.5);
+}
+
+.dark .alert-info {
+  background-color: rgb(var(--color-info) / 0.15);
+  border-color: rgb(var(--color-info) / 0.5);
+}
+
+/* Dark mode theme toggle animation */
+.theme-toggle {
+  position: relative;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background-color: rgb(var(--color-card));
+  border: 1px solid rgb(var(--color-border));
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.theme-toggle:hover {
+  background-color: rgb(var(--color-accent));
+  box-shadow: var(--shadow-md);
+}
+
+.theme-toggle-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all var(--transition-base);
+}
+
+.theme-toggle .sun-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.theme-toggle .moon-icon {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.dark .theme-toggle .sun-icon {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.dark .theme-toggle .moon-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* Dark mode print styles */
+@media print {
+  .dark {
+    /* Force light mode for printing */
+    --color-background: 255 255 255;
+    --color-foreground: 0 0 0;
+    --color-muted: 248 250 252;
+    --color-muted-foreground: 107 114 128;
+    --color-card: 255 255 255;
+    --color-card-foreground: 0 0 0;
+    --color-border: 226 232 240;
+    --color-primary: 59 130 246;
+    --color-primary-foreground: 255 255 255;
+  }
+}
+
+/* Dark mode high contrast support */
+@media (prefers-contrast: high) {
+  .dark {
+    --color-border: 148 163 184;
+    --color-muted: 51 65 85;
+    --color-muted-foreground: 203 213 225;
+  }
+}
+
+/* Dark mode reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dark * {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .theme-toggle .sun-icon,
+  .theme-toggle .moon-icon {
+    transition: none !important;
+  }
+}
+
+/* Dark mode system preference detection */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    /* Apply dark mode colors by default */
+    --color-background: 15 23 42;
+    --color-foreground: 248 250 252;
+    --color-muted: 30 41 59;
+    --color-muted-foreground: 148 163 184;
+    --color-popover: 30 41 59;
+    --color-popover-foreground: 248 250 252;
+    --color-card: 30 41 59;
+    --color-card-foreground: 248 250 252;
+    --color-border: 51 65 85;
+    --color-input: 30 41 59;
+    --color-primary: 96 165 250;
+    --color-primary-foreground: 15 23 42;
+    --color-secondary: 30 41 59;
+    --color-secondary-foreground: 248 250 252;
+    --color-accent: 30 41 59;
+    --color-accent-foreground: 248 250 252;
+    --color-destructive: 248 113 113;
+    --color-destructive-foreground: 15 23 42;
+    --color-warning: 251 191 36;
+    --color-warning-foreground: 15 23 42;
+    --color-success: 74 222 128;
+    --color-success-foreground: 15 23 42;
+    --color-info: 96 165 250;
+    --color-info-foreground: 15 23 42;
+    --color-ring: 96 165 250;
+  }
+}

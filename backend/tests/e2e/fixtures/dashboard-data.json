@@ -1,0 +1,141 @@
+{
+  "overview": {
+    "totalUsers": 1234,
+    "activeUsers": 567,
+    "newUsers": 89,
+    "totalTransactions": 8901,
+    "totalRevenue": 12345.67,
+    "avgTransactionValue": 1.39
+  },
+  "charts": {
+    "userGrowth": [
+      { "month": "Jan", "users": 1000, "newUsers": 50 },
+      { "month": "Feb", "users": 1050, "newUsers": 60 },
+      { "month": "Mar", "users": 1120, "newUsers": 70 },
+      { "month": "Apr", "users": 1180, "newUsers": 65 },
+      { "month": "May", "users": 1234, "newUsers": 89 }
+    ],
+    "revenue": [
+      { "month": "Jan", "revenue": 2000.00 },
+      { "month": "Feb", "revenue": 2500.00 },
+      { "month": "Mar", "revenue": 2800.00 },
+      { "month": "Apr", "revenue": 3200.00 },
+      { "month": "May", "revenue": 3845.67 }
+    ],
+    "transactions": [
+      { "date": "2024-01-01", "count": 150 },
+      { "date": "2024-01-02", "count": 180 },
+      { "date": "2024-01-03", "count": 165 },
+      { "date": "2024-01-04", "count": 200 },
+      { "date": "2024-01-05", "count": 190 }
+    ]
+  },
+  "recentActivity": [
+    {
+      "id": "activity-1",
+      "type": "transaction",
+      "description": "Payment processed",
+      "amount": 99.99,
+      "currency": "USD",
+      "status": "completed",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "user": {
+        "id": "user-123",
+        "name": "John Doe",
+        "email": "john@example.com"
+      }
+    },
+    {
+      "id": "activity-2",
+      "type": "user_registration",
+      "description": "New user registered",
+      "user": {
+        "id": "user-456",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      },
+      "timestamp": "2024-01-15T09:15:00Z"
+    },
+    {
+      "id": "activity-3",
+      "type": "payment_failed",
+      "description": "Payment failed",
+      "amount": 49.99,
+      "currency": "USD",
+      "status": "failed",
+      "timestamp": "2024-01-15T08:45:00Z",
+      "user": {
+        "id": "user-789",
+        "name": "Bob Johnson",
+        "email": "bob@example.com"
+      }
+    },
+    {
+      "id": "activity-4",
+      "type": "profile_update",
+      "description": "User profile updated",
+      "timestamp": "2024-01-15T07:30:00Z",
+      "user": {
+        "id": "user-123",
+        "name": "John Doe",
+        "email": "john@example.com"
+      }
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "type": "info",
+      "title": "System Update",
+      "message": "System will be updated tonight at 2 AM",
+      "timestamp": "2024-01-15T06:00:00Z",
+      "read": false
+    },
+    {
+      "id": "notif-2",
+      "type": "warning",
+      "title": "High Usage",
+      "message": "Your API usage is approaching the limit",
+      "timestamp": "2024-01-14T18:30:00Z",
+      "read": false
+    },
+    {
+      "id": "notif-3",
+      "type": "success",
+      "title": "Payment Received",
+      "message": "You received a payment of $99.99",
+      "timestamp": "2024-01-14T15:20:00Z",
+      "read": true
+    }
+  ],
+  "quickStats": [
+    {
+      "label": "Daily Active Users",
+      "value": 234,
+      "change": 12.5,
+      "changeType": "increase",
+      "icon": "users"
+    },
+    {
+      "label": "Revenue Today",
+      "value": "$1,234.56",
+      "change": 8.3,
+      "changeType": "increase",
+      "icon": "dollar"
+    },
+    {
+      "label": "Conversion Rate",
+      "value": "3.2%",
+      "change": -0.5,
+      "changeType": "decrease",
+      "icon": "chart"
+    },
+    {
+      "label": "Avg Session Time",
+      "value": "5m 42s",
+      "change": 15.2,
+      "changeType": "increase",
+      "icon": "clock"
+    }
+  ]
+}

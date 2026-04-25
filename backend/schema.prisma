@@ -1,0 +1,141 @@
+// This is the main Prisma schema for the NEPA project
+// Individual service schemas are located in databases/*/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Main user model for authentication
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  firstName   String?
+  lastName    String?
+  role        UserRole @default(USER)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  bills       Bill[]
+  payments    Payment[]
+  sessions    UserSession[]
+  
+  @@map("users")
+}
+
+// User roles enum
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+// User sessions for authentication
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String?  @unique
+  expiresAt    DateTime
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
+}
+
+// Utility providers
+model UtilityProvider {
+  id          String            @id @default(cuid())
+  name        String
+  type        UtilityType
+  apiKey      String?
+  webhookUrl  String?
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  
+  // Relations
+  bills       Bill[]
+  
+  @@map("utility_providers")
+}
+
+enum UtilityType {
+  ELECTRICITY
+  WATER
+  GAS
+}
+
+// Bills for users
+model Bill {
+  id                String            @id @default(cuid())
+  userId            String
+  utilityProviderId String
+  amount            Decimal
+  dueDate           DateTime
+  status            BillStatus        @default(PENDING)
+  billNumber        String            @unique
+  metadata          Json?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Relations
+  user              User              @relation(fields: [userId], references: [id])
+  utilityProvider   UtilityProvider   @relation(fields: [utilityProviderId], references: [id])
+  payments          Payment[]
+  
+  @@map("bills")
+}
+
+enum BillStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+// Payment records
+model Payment {
+  id               String            @id @default(cuid())
+  userId           String
+  billId           String?
+  amount           Decimal
+  currency         String            @default("USD")
+  status           PaymentStatus     @default(PENDING)
+  method           PaymentMethod
+  transactionId    String?           @unique
+  stellarTxHash    String?
+  metadata         Json?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  
+  // Relations
+  user             User              @relation(fields: [userId], references: [id])
+  bill             Bill?             @relation(fields: [billId], references: [id])
+  
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  STELLAR
+  CREDIT_CARD
+  BANK_TRANSFER
+}

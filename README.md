@@ -1,25 +1,28 @@
-# NEPA - Decentralized Utility Payment Platform
+# NEPA
 
-A decentralized utility payment platform enabling users to pay electricity & water bills using Stellar blockchain.
+> Decentralized utility payment platform powered by Stellar blockchain
 
-## 🏗️ Architecture
+A modern microservices platform enabling seamless electricity and water bill payments through blockchain technology.
 
-This project implements a **Database Per Service** microservices architecture, ensuring:
-- Data isolation between services
-- Independent scaling capabilities
-- Technology diversity support
-- Autonomous deployment
+## 🏗️ Project Structure
 
-### Microservices
+```
+nepa/
+├── frontend/          # React frontend application
+├── backend/           # Node.js API server
+└── contract/          # Stellar smart contracts
+```
 
-1. **User Service** - Authentication, profiles, sessions
-2. **Notification Service** - Email, SMS, push notifications
-3. **Document Service** - File storage (S3/IPFS)
-4. **Utility Service** - Utility provider management
-5. **Payment Service** - Payment processing via Stellar
-6. **Billing Service** - Bill management and coupons
-7. **Analytics Service** - Reporting and metrics
-8. **Webhook Service** - Event webhooks
+## ✨ Features
+
+- 🔐 **Secure Authentication** - JWT-based auth with 2FA support
+- 💳 **Blockchain Payments** - Stellar integration for fast, low-cost transactions
+- 📊 **Real-time Analytics** - Comprehensive dashboard with live metrics
+- 🔔 **Smart Notifications** - Multi-channel notification system
+- 📱 **Mobile Responsive** - Optimized for all devices
+- 🚀 **High Performance** - Sub-second response times
+- 🔒 **Enterprise Security** - Bank-grade security measures
+- 📈 **Scalable Architecture** - Microservices with database-per-service
 
 ## 🚀 Quick Start
 
@@ -27,170 +30,155 @@ This project implements a **Database Per Service** microservices architecture, e
 
 - Node.js 18+
 - Docker & Docker Compose
-- PostgreSQL client tools
-- Stellar account (testnet)
+- PostgreSQL 14+
+- Redis 6+
+- Stellar testnet account
 
-### Setup
+### Installation
 
-1. **Clone and install dependencies**
 ```bash
-git clone <repository-url>
+# Clone the repository
+git clone https://github.com/your-org/nepa.git
 cd nepa
-npm install
+
+# Install backend dependencies
+cd backend && npm install
+
+# Install frontend dependencies
+cd ../frontend && npm install
+
+# Install contract dependencies
+cd ../contract && npm install
 ```
 
-2. **Start database containers**
-```bash
-npm run db:docker-up
-```
+### Environment Setup
 
-3. **Configure environment**
 ```bash
+# Backend environment
+cd backend
 cp .env.example .env
-# Update database URLs and other configurations
+# Configure database URLs, Stellar keys, Redis connection, etc.
+
+# Frontend environment
+cd ../frontend
+cp .env.example .env
+# Configure API endpoints, etc.
 ```
 
-4. **Generate Prisma clients**
-```bash
-npm run db:generate-all
-```
+### Running the Application
 
-5. **Run migrations**
 ```bash
-npm run db:migrate-all
-```
-
-6. **Start the application**
-```bash
+# Start backend (from backend directory)
 npm run dev
+
+# Start frontend (from frontend directory)
+npm run dev
+
+# Build contracts (from contract directory)
+npm run build
 ```
 
-## 📊 Database Management
+## 📚 API Documentation
 
-### Available Commands
+### Authentication
 
 ```bash
-# Setup all databases
-npm run db:setup
+# Register user
+POST /api/auth/register
+{
+  "email": "user@example.com",
+  "password": "securePassword123",
+  "firstName": "John",
+  "lastName": "Doe"
+}
 
-# Generate all Prisma clients
-npm run db:generate-all
-
-# Run all migrations
-npm run db:migrate-all
-
-# Backup all databases
-npm run db:backup
-
-# Health check
-npm run db:health-check
-
-# Monitor connection pools
-npm run db:monitor-pools
-
-# Docker commands
-npm run db:docker-up      # Start containers
-npm run db:docker-down    # Stop containers
-npm run db:docker-logs    # View logs
+# Login
+POST /api/auth/login
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
 ```
 
-### Database Services
-
-Each service has its own PostgreSQL database:
-
-| Service | Database | Port |
-|---------|----------|------|
-| User | nepa_user_service | 5432 |
-| Notification | nepa_notification_service | 5433 |
-| Document | nepa_document_service | 5434 |
-| Utility | nepa_utility_service | 5435 |
-| Payment | nepa_payment_service | 5436 |
-| Billing | nepa_billing_service | 5437 |
-| Analytics | nepa_analytics_service | 5438 |
-| Webhook | nepa_webhook_service | 5439 |
-
-## 🔄 Event-Driven Architecture
-
-Services communicate through domain events:
-
-```typescript
-import EventBus from './databases/event-patterns/EventBus';
-import { createPaymentSuccessEvent } from './databases/event-patterns/events';
-
-// Publish event
-EventBus.publish(createPaymentSuccessEvent(paymentId, billId, userId, amount));
-
-// Subscribe to event
-EventBus.subscribe('payment.success', async (event) => {
-  // Handle event
-});
-```
-
-## 🔐 Saga Pattern
-
-Distributed transactions use the Saga pattern:
-
-```typescript
-import PaymentSaga from './databases/saga/PaymentSaga';
-
-const result = await PaymentSaga.executePayment({
-  userId,
-  billId,
-  amount,
-  method: 'STELLAR',
-  transactionId
-});
-```
-
-## 📖 Documentation
-
-- [Database Architecture](./databases/README.md)
-- [Migration Guide](./databases/migration-guide.md)
-- [Event Patterns](./databases/event-patterns/)
-- [Saga Implementation](./databases/saga/)
-
-## 🧪 Testing
+### Payments
 
 ```bash
-npm test                    # Run all tests
-npm run test:unit          # Unit tests
-npm run test:integration   # Integration tests
-npm run test:e2e           # End-to-end tests
-npm run db:test-saga       # Test saga implementation
-```
+# Process payment
+POST /api/payment/process
+{
+  "billId": "bill_123",
+  "amount": 150.00,
+  "method": "STELLAR"
+}
 
-## 📈 Monitoring
-
-```bash
-# Check database health
-npm run db:health-check
-
-# Monitor connection pools
-npm run db:monitor-pools 300000 10000  # 5 min duration, 10s interval
+# Get payment history
+GET /api/payment/history?userId=user_123
 ```
 
 ## 🔧 Development
 
+### Backend Scripts
+
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run lint         # Lint code
-npm run type-check   # TypeScript type checking
+# Development
+npm run dev              # Start development server
+npm run build            # Build for production
+npm run start            # Start production server
+
+# Database
+npm run db:setup         # Initialize all databases
+npm run db:migrate       # Run migrations
+npm run db:seed          # Seed database with sample data
+
+# Testing
+npm test                 # Run all tests
+npm run test:unit        # Unit tests only
+npm run test:e2e         # End-to-end tests
+
+# Quality
+npm run lint            # Lint code
+npm run type-check      # TypeScript checking
+npm run test:coverage   # Coverage report
 ```
 
-## 🌟 Features
+### Frontend Scripts
 
-- ✅ Microservices architecture with database per service
-- ✅ Event-driven communication between services
-- ✅ Saga pattern for distributed transactions
-- ✅ Stellar blockchain integration for payments
-- ✅ Multi-utility support (electricity, water)
-- ✅ Webhook system for external integrations
-- ✅ Document storage (S3/IPFS)
-- ✅ Comprehensive analytics and reporting
-- ✅ Real-time notifications
-- ✅ Automated backups and disaster recovery
+```bash
+# Development
+npm run dev            # Start development server
+npm run build          # Build for production
+npm run preview        # Preview production build
 
-## 📝 License
+# Testing
+npm test              # Run tests
+npm run test:e2e       # End-to-end tests
 
-MIT
+# Quality
+npm run lint         # Lint code
+npm run type-check   # TypeScript checking
+```
+
+### Contract Scripts
+
+```bash
+# Build
+npm run build        # Build smart contracts
+npm run test         # Run contract tests
+npm run deploy       # Deploy to network
+```
+
+## 🔒 Security
+
+- **Authentication**: JWT with refresh tokens
+- **Authorization**: Role-based access control (RBAC)
+- **Encryption**: AES-256 for data at rest
+- **API Security**: Rate limiting, input validation, CORS
+- **Audit Trail**: Comprehensive logging of all actions
+
+## 📄 License
+
+MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Built with ❤️ for the future of utility payments**
