@@ -108,47 +108,47 @@ const App: React.FC = () => {
     switch (activeView) {
       case 'dashboard':
         return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">NEPA Dashboard</h2>
-              <p className="text-gray-600 mb-6">Welcome to the NEPA payment system. Here's an overview of your account.</p>
+          <div className="space-y-4 lg:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-4">NEPA Dashboard</h2>
+              <p className="mobile-body text-gray-600 mb-6">Welcome to the NEPA payment system. Here's an overview of your account.</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-blue-50 rounded-lg p-4">
+              <div className="mobile-dashboard-stats grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                <div className="mobile-stat-card bg-blue-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-blue-600 font-medium">Total Payments</p>
-                      <p className="text-2xl font-bold text-blue-900">₦25,000</p>
+                      <p className="mobile-caption text-sm text-blue-600 font-medium">Total Payments</p>
+                      <p className="mobile-payment-amount text-2xl font-bold text-blue-900">₦25,000</p>
                     </div>
                     <Zap className="w-8 h-8 text-blue-600" />
                   </div>
                 </div>
                 
-                <div className="bg-green-50 rounded-lg p-4">
+                <div className="mobile-stat-card bg-green-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-green-600 font-medium">Successful</p>
-                      <p className="text-2xl font-bold text-green-900">12</p>
+                      <p className="mobile-caption text-sm text-green-600 font-medium">Successful</p>
+                      <p className="mobile-payment-amount text-2xl font-bold text-green-900">12</p>
                     </div>
                     <History className="w-8 h-8 text-green-600" />
                   </div>
                 </div>
                 
-                <div className="bg-yellow-50 rounded-lg p-4">
+                <div className="mobile-stat-card bg-yellow-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-yellow-600 font-medium">Pending</p>
-                      <p className="text-2xl font-bold text-yellow-900">3</p>
+                      <p className="mobile-caption text-sm text-yellow-600 font-medium">Pending</p>
+                      <p className="mobile-payment-amount text-2xl font-bold text-yellow-900">3</p>
                     </div>
                     <Clock className="w-8 h-8 text-yellow-600" />
                   </div>
                 </div>
                 
-                <div className="bg-red-50 rounded-lg p-4">
+                <div className="mobile-stat-card bg-red-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-red-600 font-medium">Failed</p>
-                      <p className="text-2xl font-bold text-red-900">1</p>
+                      <p className="mobile-caption text-sm text-red-600 font-medium">Failed</p>
+                      <p className="mobile-payment-amount text-2xl font-bold text-red-900">1</p>
                     </div>
                     <Settings className="w-8 h-8 text-red-600" />
                   </div>
@@ -156,8 +156,8 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h3 className="mobile-heading-3 text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
               <DataTable
                 data={sampleData.slice(0, 3)}
                 columns={tableColumns}
@@ -171,9 +171,9 @@ const App: React.FC = () => {
       case 'new-payment':
       case 'payments':
         return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Make a Payment</h2>
+          <div className="space-y-4 lg:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-4">Make a Payment</h2>
               <PaymentIntegration />
             </div>
           </div>
@@ -181,9 +181,9 @@ const App: React.FC = () => {
 
       case 'payment-history':
         return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Payment History</h2>
+          <div className="space-y-4 lg:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-4">Payment History</h2>
               <DataTable
                 data={sampleData}
                 columns={tableColumns}
@@ -197,10 +197,10 @@ const App: React.FC = () => {
 
       case 'data-tables':
         return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Data Tables Demo</h2>
-              <p className="text-gray-600 mb-6">
+          <div className="space-y-4 lg:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-4">Data Tables Demo</h2>
+              <p className="mobile-body text-gray-600 mb-6">
                 Advanced data table with sorting, filtering, pagination, and search capabilities.
               </p>
               <DataTable
@@ -346,7 +346,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 mobile-safe-area">
       <div className="flex">
         {/* Sidebar */}
         <Sidebar
@@ -360,23 +360,27 @@ const App: React.FC = () => {
 
         {/* Main Content */}
         <div className={`flex-1 transition-all duration-300 ${
-          sidebarCollapsed ? 'ml-16' : 'ml-64'
-        }`}>
-          {/* Mobile Menu Toggle */}
-          <div className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <h1 className="text-xl font-bold text-blue-600">NEPA 💡</h1>
+          sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
+        } ml-0`}>
+          {/* Mobile Header */}
+          <div className="lg:hidden bg-white shadow-sm mobile-safe-area">
+            <div className="flex items-center justify-between p-4">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="mobile-touch-target p-2 rounded-lg hover:bg-gray-100 mobile-focus-visible"
+                aria-label="Toggle menu"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl font-bold text-blue-600 mobile-heading-2">NEPA 💡</h1>
+              <div className="w-10"></div>
+            </div>
           </div>
 
           {/* Page Content */}
-          <main className="p-6">
+          <main className="p-4 lg:p-6 mobile-container">
             {renderContent()}
           </main>
         </div>
