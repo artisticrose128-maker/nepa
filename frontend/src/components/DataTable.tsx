@@ -9,6 +9,7 @@ import {
   MoreVertical,
   Download
 } from 'lucide-react';
+import { LoadingTable } from './LoadingTable';
 
 interface DataTableColumn {
   key: string;
@@ -217,6 +218,19 @@ export const DataTable: React.FC<DataTableProps> = ({
     return value.toString();
   };
 
+  // Show loading table when loading
+  if (loading) {
+    return (
+      <LoadingTable 
+        rows={pageSize || 5} 
+        columns={columns.length} 
+        showHeader={true}
+        columnWidths={columns.map(col => col.width)}
+        className={className}
+      />
+    );
+  }
+
   return (
     <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
       {/* Header */}
@@ -226,9 +240,6 @@ export const DataTable: React.FC<DataTableProps> = ({
             <h3 className="text-lg font-medium text-gray-900">
               {data.length} {data.length === 1 ? 'item' : 'items'}
             </h3>
-            {loading && (
-              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-            )}
           </div>
           
           <div className="flex items-center space-x-2">

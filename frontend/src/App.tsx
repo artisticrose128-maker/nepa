@@ -3,6 +3,10 @@ import Sidebar from './components/Sidebar';
 import TimePicker from './components/TimePicker';
 import PaymentIntegration from './components/PaymentIntegration';
 import DataTable from './components/DataTable';
+import { LoadingProvider } from './contexts/LoadingContext';
+import { LoadingButton } from './components/LoadingButton';
+import { LoadingCard, LoadingGrid } from './components/LoadingCard';
+import { ProgressBar } from './components/ProgressBar';
 import { Home, Zap, CreditCard, History, Settings, Clock, Table } from 'lucide-react';
 
 interface SidebarItem {
@@ -346,33 +350,30 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
+    <LoadingProvider>
+      <div className="min-h-screen bg-gray-50">
+        <Sidebar 
+          items={sidebarItems}
           activeItem={activeView}
           onItemClick={handleSidebarItemClick}
+          open={sidebarOpen}
+          onToggle={setSidebarOpen}
           collapsed={sidebarCollapsed}
-          onCollapsedChange={setSidebarCollapsed}
+          onCollapseToggle={setSidebarCollapsed}
         />
-
-        {/* Main Content */}
-        <div className={`flex-1 transition-all duration-300 ${
-          sidebarCollapsed ? 'ml-16' : 'ml-64'
-        }`}>
-          {/* Mobile Menu Toggle */}
-          <div className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <h1 className="text-xl font-bold text-blue-600">NEPA 💡</h1>
+        
+        <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'} ${sidebarCollapsed ? 'ml-16' : ''}`}>
+          {/* Header */}
+          <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-semibold text-gray-900">NEPA Payment System</h1>
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-md hover:bg-gray-100 lg:hidden"
+              >
+                <Table className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Page Content */}
@@ -381,7 +382,7 @@ const App: React.FC = () => {
           </main>
         </div>
       </div>
-    </div>
+    </LoadingProvider>
   );
 };
 
