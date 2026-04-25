@@ -8,6 +8,7 @@ import { loggingMiddleware, setupGlobalErrorHandling, errorTracker, logger } fro
 import { errorTracker as abuseDetector } from './middleware/abuseDetection';
 import { sanitizeInput } from './middleware/inputSanitization';
 import { captureAuditContext, auditRateLimit, auditAuth, auditAdmin, auditPayment, auditDocument } from './middleware/audit';
+import { AuditAction } from './services/AuditService';
 import { auditRoutes, fraudRoutes } from './routes/auditRoutes';
 import { swaggerSpec, getVersionedSwaggerSpec } from './swagger';
 import { apiVersioningConfig } from './config/apiVersioning';
@@ -19,6 +20,7 @@ import { uploadDocument } from './controllers/DocumentController';
 import { getDashboardData, generateReport, exportData } from './controllers/AnalyticsController';
 import { applyPaymentSecurity, processPayment, getPaymentHistory, validatePayment } from './controllers/PaymentController';
 import { setupRateLimitRoutes } from './routes/rateLimitRoutes';
+import exportRoutes from './routes/exportRoutes';
 import { performanceMonitor } from './services/performanceMonitoring';
 import analyticsService from './services/analytics';
 import { appConfig } from './src/config/environment';
@@ -277,6 +279,10 @@ app.get('/api/analytics/dashboard', apiKeyAuth, getDashboardData);
  */
 app.post('/api/analytics/reports', apiKeyAuth, generateReport);
 app.get('/api/analytics/export', apiKeyAuth, exportData);
+
+// Export Routes
+app.use('/api/export', exportRoutes);
+
 // Setup global error handling
 setupGlobalErrorHandling(app);
 
