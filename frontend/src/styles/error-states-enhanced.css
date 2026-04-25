@@ -1,0 +1,564 @@
+/* Enhanced Error States CSS */
+
+/* Error Boundary Styles */
+.error-boundary {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm;
+  padding: 1rem;
+}
+
+.error-boundary-content {
+  @apply bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto;
+  margin: 0 auto;
+}
+
+.error-boundary-header {
+  @apply flex items-center gap-4 p-6 border-b border-gray-200;
+}
+
+.error-boundary-icon {
+  @apply flex-shrink-0 text-red-500;
+}
+
+.error-boundary-title {
+  @apply flex-1;
+}
+
+.error-boundary-title-text {
+  @apply text-2xl font-bold text-gray-900 leading-tight;
+}
+
+.error-boundary-subtitle {
+  @apply text-gray-600 mt-1;
+}
+
+.error-boundary-message {
+  @apply p-6;
+}
+
+.error-boundary-message-content {
+  @apply space-y-4;
+}
+
+.error-boundary-description {
+  @apply text-gray-700 leading-relaxed;
+}
+
+.error-boundary-id {
+  @apply text-sm text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded mt-2;
+}
+
+.error-boundary-details {
+  @apply mt-6 border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.error-boundary-details-summary {
+  @apply flex items-center gap-2 p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors duration-200 font-medium text-gray-700;
+}
+
+.error-boundary-details-content {
+  @apply p-4 bg-white space-y-4;
+}
+
+.error-boundary-section {
+  @apply space-y-2;
+}
+
+.error-boundary-section-title {
+  @apply text-sm font-semibold text-gray-700 uppercase tracking-wide;
+}
+
+.error-boundary-code {
+  @apply bg-gray-900 text-gray-100 p-4 rounded-md text-sm font-mono overflow-x-auto whitespace-pre-wrap;
+}
+
+.error-boundary-actions {
+  @apply flex gap-3 p-6 border-t border-gray-200 bg-gray-50;
+}
+
+.error-boundary-button {
+  @apply flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  min-height: 44px; /* Touch-friendly */
+}
+
+.error-boundary-button--primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.error-boundary-button--secondary {
+  @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+}
+
+.error-boundary-button--outline {
+  @apply border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-500;
+}
+
+.error-boundary-retry-count {
+  @apply text-sm bg-gray-200 text-gray-600 px-2 py-1 rounded-full ml-2;
+}
+
+.error-boundary-support {
+  @apply p-6 bg-blue-50 border-t border-blue-200;
+}
+
+.error-boundary-support-text {
+  @apply text-center text-gray-700 mb-4;
+}
+
+.error-boundary-link {
+  @apply text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200;
+}
+
+/* Error Fallback Styles */
+.error-fallback {
+  @apply bg-white border border-red-200 rounded-lg shadow-lg;
+}
+
+.error-fallback--full {
+  @apply p-6;
+}
+
+.error-fallback--partial {
+  @apply p-4;
+}
+
+.error-fallback--inline {
+  @apply inline-flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md;
+}
+
+.error-fallback-container {
+  @apply space-y-4;
+}
+
+.error-fallback-header {
+  @apply flex items-center gap-3;
+}
+
+.error-fallback-icon {
+  @apply flex-shrink-0 text-red-500;
+}
+
+.error-fallback-title {
+  @apply flex-1;
+}
+
+.error-fallback-title-text {
+  @apply text-xl font-bold text-gray-900;
+}
+
+.error-fallback-subtitle {
+  @apply text-gray-600;
+}
+
+.error-fallback-message {
+  @apply space-y-2;
+}
+
+.error-fallback-message-content {
+  @apply text-gray-700;
+}
+
+.error-fallback-description {
+  @apply leading-relaxed;
+}
+
+.error-fallback-id {
+  @apply text-sm text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded;
+}
+
+.error-fallback-details {
+  @apply mt-4 border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.error-fallback-details-summary {
+  @apply flex items-center gap-2 p-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors duration-200 font-medium text-gray-700;
+}
+
+.error-fallback-details-content {
+  @apply p-3 bg-white space-y-3;
+}
+
+.error-fallback-section {
+  @apply space-y-2;
+}
+
+.error-fallback-section-title {
+  @apply text-sm font-semibold text-gray-700 uppercase tracking-wide;
+}
+
+.error-fallback-code {
+  @apply bg-gray-900 text-gray-100 p-3 rounded-md text-sm font-mono overflow-x-auto whitespace-pre-wrap;
+}
+
+.error-fallback-stack {
+  @apply bg-gray-900 text-gray-100 p-3 rounded-md text-xs font-mono overflow-x-auto whitespace-pre-wrap max-h-40 overflow-y-auto;
+}
+
+.error-fallback-actions {
+  @apply flex gap-2 mt-4;
+}
+
+.error-fallback-button {
+  @apply flex items-center gap-2 px-3 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  min-height: 44px; /* Touch-friendly */
+}
+
+.error-fallback-button--primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.error-fallback-button--secondary {
+  @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+}
+
+.error-fallback-button--outline {
+  @apply border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-500;
+}
+
+.error-fallback-support {
+  @apply mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg;
+}
+
+.error-fallback-support-content {
+  @apply space-y-3;
+}
+
+.error-fallback-support-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+.error-fallback-support-description {
+  @apply text-gray-700 leading-relaxed;
+}
+
+.error-fallback-support-actions {
+  @apply flex gap-2 mt-4;
+}
+
+.error-fallback-link {
+  @apply text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200;
+}
+
+.error-fallback-inline {
+  @apply items-center gap-2;
+}
+
+.error-fallback-inline-content {
+  @apply flex items-center gap-2;
+}
+
+.error-fallback-inline-message {
+  @apply text-red-700 font-medium;
+}
+
+.error-fallback-inline-actions {
+  @apply flex gap-1;
+}
+
+.error-fallback-inline-button {
+  @apply p-2 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1;
+}
+
+.error-fallback-compact {
+  @apply inline-flex items-center gap-1 p-2 bg-red-50 border border-red-200 rounded-md;
+}
+
+.error-fallback-compact-icon {
+  @apply flex-shrink-0 text-red-500;
+}
+
+.error-fallback-compact-message {
+  @apply text-red-700 text-sm font-medium;
+}
+
+.error-fallback-compact-button {
+  @apply p-1 rounded text-sm transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-offset-1;
+}
+
+/* Error Toast Styles */
+.toast {
+  @apply fixed top-4 right-4 z-50 flex items-start gap-3 p-4 bg-white rounded-lg shadow-lg border border-gray-200 max-w-md;
+  min-height: 44px; /* Touch-friendly */
+  animation: toast-enter 0.3s ease-out;
+}
+
+.toast--entering {
+  animation: toast-enter 0.3s ease-out;
+}
+
+.toast--leaving {
+  animation: toast-leave 0.3s ease-out;
+}
+
+.toast--error {
+  @apply border-red-200;
+}
+
+.toast--success {
+  @apply border-green-200;
+}
+
+.toast--warning {
+  @apply border-yellow-200;
+}
+
+.toast--info {
+  @apply border-blue-200;
+}
+
+.toast-content {
+  @apply flex items-start gap-3 flex-1;
+}
+
+.toast-icon-container {
+  @apply flex-shrink-0 mt-0.5;
+}
+
+.toast-icon {
+  @apply flex-shrink-0;
+}
+
+.toast--error .toast-icon {
+  @apply text-red-500;
+}
+
+.toast--success .toast-icon {
+  @apply text-green-500;
+}
+
+.toast--warning .toast-icon {
+  @apply text-yellow-500;
+}
+
+.toast--info .toast-icon {
+  @apply text-blue-500;
+}
+
+.toast-message {
+  @apply flex-1 min-w-0;
+}
+
+.toast-text {
+  @apply text-gray-900 leading-relaxed;
+}
+
+.toast-progress {
+  @apply w-full bg-gray-200 rounded-full h-1 mt-2 overflow-hidden;
+}
+
+.toast-progress-bar {
+  @apply h-full bg-blue-600 transition-all duration-300 ease-out;
+}
+
+.toast-action {
+  @apply flex-shrink-0 ml-4 px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 rounded transition-colors duration-200;
+}
+
+.toast-dismiss {
+  @apply flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 rounded transition-colors duration-200;
+}
+
+.toast-timer {
+  @apply absolute bottom-0 left-0 h-1 bg-gray-200 rounded-full;
+  animation: toast-timer linear;
+}
+
+/* Toast Animations */
+@keyframes toast-enter {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-leave {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes toast-timer {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .error-boundary-content {
+    @apply mx-2 my-2 max-h-screen;
+  }
+  
+  .error-boundary-actions {
+    @apply flex-col gap-2;
+  }
+  
+  .error-fallback-actions {
+    @apply flex-col gap-2;
+  }
+  
+  .toast {
+    @apply top-2 right-2 left-2 max-w-none;
+  }
+  
+  .toast-content {
+    @apply flex-col items-start;
+  }
+  
+  .toast-action {
+    @apply w-full ml-0 mt-2;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .error-boundary {
+    @apply bg-black bg-opacity-90;
+  }
+  
+  .error-boundary-content {
+    @apply border-2 border-gray-600;
+  }
+  
+  .error-fallback {
+    @apply border-2 border-red-600;
+  }
+  
+  .toast {
+    @apply border-2 border-gray-600;
+  }
+  
+  .error-boundary-button,
+  .error-fallback-button {
+    @apply border-2;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .error-boundary-content,
+  .error-fallback {
+    animation: none;
+    transition: none;
+  }
+  
+  .toast-timer {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .error-boundary,
+  .toast,
+  .error-fallback {
+    @apply hidden;
+  }
+}
+
+/* Focus Management */
+.error-boundary-button:focus-visible,
+.error-fallback-button:focus-visible,
+.toast-action:focus-visible,
+.toast-dismiss:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+/* RTL Support */
+[dir="rtl"] .error-boundary-actions,
+[dir="rtl"] .error-fallback-actions {
+  @apply flex-row-reverse;
+}
+
+[dir="rtl"] .toast {
+  @apply left-4 right-auto;
+}
+
+[dir="rtl"] .toast-action {
+  @apply ml-0 mr-4;
+}
+
+/* Loading States */
+.error-boundary--loading {
+  @apply opacity-75 pointer-events-none;
+}
+
+.error-fallback--loading {
+  @apply opacity-75 pointer-events-none;
+}
+
+.toast--loading {
+  @apply opacity-75 pointer-events-none;
+}
+
+/* Error Severity Indicators */
+.error-boundary--critical {
+  @apply border-red-500;
+}
+
+.error-boundary--warning {
+  @apply border-yellow-500;
+}
+
+.error-boundary--info {
+  @apply border-blue-500;
+}
+
+.toast--critical {
+  @apply bg-red-50 border-red-500;
+}
+
+.toast--warning {
+  @apply bg-yellow-50 border-yellow-500;
+}
+
+.toast--info {
+  @apply bg-blue-50 border-blue-500;
+}
+
+/* Custom Scrollbar for Error Details */
+.error-boundary-code,
+.error-fallback-code,
+.error-fallback-stack {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(156 163 175) rgb(243 244 246);
+}
+
+.error-boundary-code::-webkit-scrollbar,
+.error-fallback-code::-webkit-scrollbar,
+.error-fallback-stack::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.error-boundary-code::-webkit-scrollbar-track,
+.error-fallback-code::-webkit-scrollbar-track,
+.error-fallback-stack::-webkit-scrollbar-track {
+  background: rgb(243 244 246);
+}
+
+.error-boundary-code::-webkit-scrollbar-thumb,
+.error-fallback-code::-webkit-scrollbar-thumb,
+.error-fallback-stack::-webkit-scrollbar-thumb {
+  background: rgb(156 163 175);
+  border-radius: 3px;
+}
+
+.error-boundary-code::-webkit-scrollbar-thumb:hover,
+.error-fallback-code::-webkit-scrollbar-thumb:hover,
+.error-fallback-stack::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}

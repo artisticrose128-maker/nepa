@@ -8,6 +8,20 @@ import { LoadingButton } from './components/LoadingButton';
 import { LoadingCard, LoadingGrid } from './components/LoadingCard';
 import { ProgressBar } from './components/ProgressBar';
 import { Home, Zap, CreditCard, History, Settings, Clock, Table } from 'lucide-react';
+import { AdvancedFileUpload } from './components/AdvancedFileUpload';
+import { ToastContainer } from './components/ToastContainer';
+import { NotificationDemo } from './components/NotificationDemo';
+import { AdvancedSearch } from './components/AdvancedSearch';
+import { SearchResults } from './components/SearchResults';
+import { SearchAnalytics } from './components/SearchAnalytics';
+import { FilterPanel } from './components/FilterPanel';
+import { FilterBar } from './components/FilterBar';
+import { FilterAnalytics } from './components/FilterAnalytics';
+import { FilterDemo } from './components/FilterDemo';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { SearchProvider } from './contexts/SearchContext';
+import { FilterProvider } from './contexts/FilterContext';
+import { Home, Zap, CreditCard, History, Settings, Clock, Table, Upload, Bell, Search, Filter } from 'lucide-react';
 
 interface SidebarItem {
   id: string;
@@ -93,6 +107,30 @@ const App: React.FC = () => {
       path: '/time-picker'
     },
     {
+      id: 'file-upload',
+      label: 'File Upload',
+      icon: <Upload size={20} />,
+      path: '/file-upload'
+    },
+    {
+      id: 'notifications',
+      label: 'Notifications',
+      icon: <Bell size={20} />,
+      path: '/notifications'
+    },
+    {
+      id: 'search',
+      label: 'Search',
+      icon: <Search size={20} />,
+      path: '/search'
+    },
+    {
+      id: 'filtering',
+      label: 'Filtering',
+      icon: <Filter size={20} />,
+      path: '/filtering'
+    },
+    {
       id: 'settings',
       label: 'Settings',
       icon: <Settings size={20} />,
@@ -112,47 +150,47 @@ const App: React.FC = () => {
     switch (activeView) {
       case 'dashboard':
         return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">NEPA Dashboard</h2>
-              <p className="text-gray-600 mb-6">Welcome to the NEPA payment system. Here's an overview of your account.</p>
+          <div className="space-y-4 lg:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-4">NEPA Dashboard</h2>
+              <p className="mobile-body text-gray-600 mb-6">Welcome to the NEPA payment system. Here's an overview of your account.</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-blue-50 rounded-lg p-4">
+              <div className="mobile-dashboard-stats grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                <div className="mobile-stat-card bg-blue-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-blue-600 font-medium">Total Payments</p>
-                      <p className="text-2xl font-bold text-blue-900">₦25,000</p>
+                      <p className="mobile-caption text-sm text-blue-600 font-medium">Total Payments</p>
+                      <p className="mobile-payment-amount text-2xl font-bold text-blue-900">₦25,000</p>
                     </div>
                     <Zap className="w-8 h-8 text-blue-600" />
                   </div>
                 </div>
                 
-                <div className="bg-green-50 rounded-lg p-4">
+                <div className="mobile-stat-card bg-green-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-green-600 font-medium">Successful</p>
-                      <p className="text-2xl font-bold text-green-900">12</p>
+                      <p className="mobile-caption text-sm text-green-600 font-medium">Successful</p>
+                      <p className="mobile-payment-amount text-2xl font-bold text-green-900">12</p>
                     </div>
                     <History className="w-8 h-8 text-green-600" />
                   </div>
                 </div>
                 
-                <div className="bg-yellow-50 rounded-lg p-4">
+                <div className="mobile-stat-card bg-yellow-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-yellow-600 font-medium">Pending</p>
-                      <p className="text-2xl font-bold text-yellow-900">3</p>
+                      <p className="mobile-caption text-sm text-yellow-600 font-medium">Pending</p>
+                      <p className="mobile-payment-amount text-2xl font-bold text-yellow-900">3</p>
                     </div>
                     <Clock className="w-8 h-8 text-yellow-600" />
                   </div>
                 </div>
                 
-                <div className="bg-red-50 rounded-lg p-4">
+                <div className="mobile-stat-card bg-red-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-red-600 font-medium">Failed</p>
-                      <p className="text-2xl font-bold text-red-900">1</p>
+                      <p className="mobile-caption text-sm text-red-600 font-medium">Failed</p>
+                      <p className="mobile-payment-amount text-2xl font-bold text-red-900">1</p>
                     </div>
                     <Settings className="w-8 h-8 text-red-600" />
                   </div>
@@ -160,8 +198,8 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h3 className="mobile-heading-3 text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
               <DataTable
                 data={sampleData.slice(0, 3)}
                 columns={tableColumns}
@@ -175,9 +213,9 @@ const App: React.FC = () => {
       case 'new-payment':
       case 'payments':
         return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Make a Payment</h2>
+          <div className="space-y-4 lg:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-4">Make a Payment</h2>
               <PaymentIntegration />
             </div>
           </div>
@@ -185,9 +223,9 @@ const App: React.FC = () => {
 
       case 'payment-history':
         return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Payment History</h2>
+          <div className="space-y-4 lg:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-4">Payment History</h2>
               <DataTable
                 data={sampleData}
                 columns={tableColumns}
@@ -201,10 +239,10 @@ const App: React.FC = () => {
 
       case 'data-tables':
         return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Data Tables Demo</h2>
-              <p className="text-gray-600 mb-6">
+          <div className="space-y-4 lg:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 mobile-card">
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-4">Data Tables Demo</h2>
+              <p className="mobile-body text-gray-600 mb-6">
                 Advanced data table with sorting, filtering, pagination, and search capabilities.
               </p>
               <DataTable
@@ -293,6 +331,126 @@ const App: React.FC = () => {
           </div>
         );
 
+      case 'file-upload':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">File Upload</h2>
+              <p className="text-gray-600 mb-6">
+                Advanced file upload component with drag-and-drop, progress indicators, file validation, and error handling.
+              </p>
+              
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">General File Upload</h3>
+                  <AdvancedFileUpload
+                    onUploadComplete={(files) => console.log('Upload completed:', files)}
+                    onFileSelect={(files) => console.log('Files selected:', files)}
+                    maxFiles={5}
+                    maxSize={10 * 1024 * 1024} // 10MB
+                    allowedExtensions={['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx']}
+                  />
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Images Only</h3>
+                  <AdvancedFileUpload
+                    onUploadComplete={(files) => console.log('Images uploaded:', files)}
+                    maxFiles={3}
+                    maxSize={5 * 1024 * 1024} // 5MB
+                    allowedTypes={['image/jpeg', 'image/png', 'image/gif']}
+                    allowedExtensions={['.jpg', '.jpeg', '.png', '.gif']}
+                  />
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Manual Upload Mode</h3>
+                  <AdvancedFileUpload
+                    onUploadComplete={(files) => console.log('Manual upload completed:', files)}
+                    autoUpload={false}
+                    maxFiles={10}
+                    maxSize={20 * 1024 * 1024} // 20MB
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'notifications':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Notification System</h2>
+              <p className="text-gray-600 mb-6">
+                Comprehensive toast notification system with multiple types, positions, and accessibility features.
+              </p>
+              
+              <NotificationDemo />
+            </div>
+          </div>
+        );
+
+      case 'search':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Search System</h2>
+              <p className="text-gray-600 mb-6">
+                Advanced search functionality with suggestions, filters, history, and analytics.
+              </p>
+              
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Search Interface</h3>
+                  <AdvancedSearch
+                    onSearch={(query, filters) => console.log('Search:', query, filters)}
+                    suggestions={[
+                      { id: '1', text: 'meter readings', type: 'meter' },
+                      { id: '2', text: 'payment history', type: 'payment' },
+                      { id: '3', text: 'user accounts', type: 'user' },
+                      { id: '4', text: 'transaction details', type: 'payment' }
+                    ]}
+                    filters={[
+                      { id: 'type', label: 'Type', field: 'type', type: 'select', options: [
+                        { value: 'meter', label: 'Meters' },
+                        { value: 'payment', label: 'Payments' },
+                        { value: 'user', label: 'Users' }
+                      ]},
+                      { id: 'dateRange', label: 'Date Range', field: 'date', type: 'date' },
+                      { id: 'amount', label: 'Amount Range', field: 'amount', type: 'range', min: 0, max: 10000 }
+                    ]}
+                  />
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Search Results</h3>
+                  <SearchResults />
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Search Analytics</h3>
+                  <SearchAnalytics />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'filtering':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Filtering System</h2>
+              <p className="text-gray-600 mb-6">
+                Comprehensive filtering system with persistence, combinations, presets, and analytics.
+              </p>
+              
+              <FilterDemo />
+            </div>
+          </div>
+        );
+
       case 'settings':
         return (
           <div className="space-y-6">
@@ -354,6 +512,12 @@ const App: React.FC = () => {
       <div className="min-h-screen bg-gray-50">
         <Sidebar 
           items={sidebarItems}
+    <div className="min-h-screen bg-gray-50 mobile-safe-area">
+      <div className="flex">
+        {/* Sidebar */}
+        <Sidebar
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
           activeItem={activeView}
           onItemClick={handleSidebarItemClick}
           open={sidebarOpen}
@@ -373,16 +537,81 @@ const App: React.FC = () => {
               >
                 <Table className="w-5 h-5" />
               </button>
+
+        {/* Main Content */}
+        <div className={`flex-1 transition-all duration-300 ${
+          sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
+        } ml-0`}>
+          {/* Mobile Header */}
+          <div className="lg:hidden bg-white shadow-sm mobile-safe-area">
+            <div className="flex items-center justify-between p-4">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="mobile-touch-target p-2 rounded-lg hover:bg-gray-100 mobile-focus-visible"
+                aria-label="Toggle menu"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-xl font-bold text-blue-600 mobile-heading-2">NEPA 💡</h1>
+              <div className="w-10"></div>
             </div>
           </div>
 
           {/* Page Content */}
-          <main className="p-6">
+          <main className="p-4 lg:p-6 mobile-container">
             {renderContent()}
           </main>
         </div>
       </div>
     </LoadingProvider>
+    </div>
+    <FilterProvider>
+      <SearchProvider>
+        <NotificationProvider>
+          <div className="min-h-screen bg-gray-50">
+            <div className="flex">
+              {/* Sidebar */}
+              <Sidebar
+                isOpen={sidebarOpen}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
+                activeItem={activeView}
+                onItemClick={handleSidebarItemClick}
+                collapsed={sidebarCollapsed}
+                onCollapsedChange={setSidebarCollapsed}
+              />
+
+              {/* Main Content */}
+              <div className={`flex-1 transition-all duration-300 ${
+                sidebarCollapsed ? 'ml-16' : 'ml-64'
+              }`}>
+                {/* Mobile Menu Toggle */}
+                <div className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between">
+                  <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="p-2 rounded-lg hover:bg-gray-100"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  </button>
+                  <h1 className="text-xl font-bold text-blue-600">NEPA 💡</h1>
+                </div>
+
+                {/* Page Content */}
+                <main className="p-6">
+                  {renderContent()}
+                </main>
+              </div>
+            </div>
+
+            {/* Toast Container */}
+            <ToastContainer position="top-right" maxVisible={5} />
+          </div>
+        </NotificationProvider>
+      </SearchProvider>
+    </FilterProvider>
   );
 };
 

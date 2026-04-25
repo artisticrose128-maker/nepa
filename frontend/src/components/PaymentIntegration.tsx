@@ -235,13 +235,13 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
     switch (currentStep) {
       case 'form':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             {/* Wallet Connection */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between">
+            <div className="bg-gray-50 rounded-lg p-4 mobile-card">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
                 <div className="flex items-center space-x-3">
                   <Wallet className="w-5 h-5 text-gray-600" />
-                  <span className="text-sm font-medium text-gray-900">Wallet Status</span>
+                  <span className="mobile-caption text-sm font-medium text-gray-900">Wallet Status</span>
                 </div>
                 <WalletConnector
                   address={stellarAccount?.publicKey || null}
@@ -270,12 +270,12 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
 
             {/* Recent Transactions */}
             {transactions.length > 0 && (
-              <div className="border-t pt-6">
+              <div className="border-t pt-4 lg:pt-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
+                  <h3 className="mobile-heading-3 text-lg font-semibold text-gray-900">Recent Transactions</h3>
                   <button
                     onClick={() => setShowHistory(!showHistory)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="mobile-touch-target text-sm text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50"
                   >
                     {showHistory ? 'Hide' : 'Show'} History
                   </button>
@@ -283,19 +283,19 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
                 {showHistory && (
                   <div className="space-y-2">
                     {transactions.slice(0, 3).map((transaction) => (
-                      <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div key={transaction.id} className="mobile-transaction-item flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-3">
                           <div className={`w-2 h-2 rounded-full ${
                             transaction.status === 'SUCCESS' ? 'bg-green-500' : 'bg-yellow-500'
                           }`} />
                           <div>
-                            <p className="text-sm font-medium">{transaction.meterId}</p>
-                            <p className="text-xs text-gray-500">{new Date(transaction.date).toLocaleDateString()}</p>
+                            <p className="mobile-body text-sm font-medium">{transaction.meterId}</p>
+                            <p className="mobile-caption text-xs text-gray-500">{new Date(transaction.date).toLocaleDateString()}</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium">₦{transaction.amount}</p>
-                          <p className="text-xs text-gray-500">{transaction.status}</p>
+                          <p className="mobile-body text-sm font-medium">₦{transaction.amount}</p>
+                          <p className="mobile-caption text-xs text-gray-500">{transaction.status}</p>
                         </div>
                       </div>
                     ))}
@@ -308,36 +308,36 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
 
       case 'confirmation':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-8 h-8 text-blue-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Confirm Payment</h2>
-              <p className="text-gray-600">Please review your payment details before confirming</p>
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-2">Confirm Payment</h2>
+              <p className="mobile-body text-gray-600">Please review your payment details before confirming</p>
             </div>
 
             {confirmation && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+              <div className="mobile-payment-form bg-white border border-gray-200 rounded-lg p-4 lg:p-6 space-y-4">
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-gray-600">Payment ID:</span>
-                  <span className="font-medium">{confirmation.id}</span>
+                  <span className="mobile-caption text-gray-600">Payment ID:</span>
+                  <span className="mobile-body font-medium text-right">{confirmation.id}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-gray-600">Meter Number:</span>
-                  <span className="font-medium">{confirmation.meterNumber}</span>
+                  <span className="mobile-caption text-gray-600">Meter Number:</span>
+                  <span className="mobile-body font-medium text-right">{confirmation.meterNumber}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-gray-600">Amount:</span>
-                  <span className="font-medium">₦{confirmation.amount}</span>
+                  <span className="mobile-caption text-gray-600">Amount:</span>
+                  <span className="mobile-body font-medium text-right">₦{confirmation.amount}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-gray-600">Transaction Fee:</span>
-                  <span className="font-medium">₦{confirmation.fee}</span>
+                  <span className="mobile-caption text-gray-600">Transaction Fee:</span>
+                  <span className="mobile-body font-medium text-right">₦{confirmation.fee}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-lg font-semibold">Total Amount:</span>
-                  <span className="text-lg font-bold text-blue-600">₦{confirmation.total}</span>
+                  <span className="mobile-body text-lg font-semibold">Total Amount:</span>
+                  <span className="mobile-payment-amount text-lg font-bold text-blue-600">₦{confirmation.total}</span>
                 </div>
               </div>
             )}
@@ -356,18 +356,18 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
               </div>
             </div>
 
-            <div className="flex space-x-4">
+            <div className="mobile-button-group flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-4">
               <button
                 onClick={resetPayment}
                 disabled={isProcessing}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mobile-button flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmPayment}
                 disabled={isProcessing}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="mobile-button flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isProcessing ? (
                   <>
@@ -384,13 +384,13 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
 
       case 'processing':
         return (
-          <div className="text-center space-y-6">
+          <div className="text-center space-y-4 lg:space-y-6">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
               <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Processing Payment</h2>
-              <p className="text-gray-600">Your payment is being processed on the Stellar network</p>
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-2">Processing Payment</h2>
+              <p className="mobile-body text-gray-600">Your payment is being processed on the Stellar network</p>
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-center space-x-3">
@@ -405,29 +405,29 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
 
       case 'success':
         return (
-          <div className="text-center space-y-6">
+          <div className="text-center space-y-4 lg:space-y-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
-              <p className="text-gray-600">Your payment has been processed successfully</p>
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
+              <p className="mobile-body text-gray-600">Your payment has been processed successfully</p>
             </div>
 
             {confirmation && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+              <div className="mobile-payment-form bg-white border border-gray-200 rounded-lg p-4 lg:p-6 space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Transaction ID:</span>
+                  <span className="mobile-caption text-gray-600">Transaction ID:</span>
                   <span className="font-mono text-sm">{confirmation.id}</span>
                 </div>
                 {confirmation.stellarTransactionId && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Stellar TX:</span>
+                    <span className="mobile-caption text-gray-600">Stellar TX:</span>
                     <div className="flex items-center space-x-2">
                       <span className="font-mono text-sm">{confirmation.stellarTransactionId.slice(0, 10)}...</span>
                       <button
                         onClick={() => window.open(`https://stellar.expert/explorer/testnet/tx/${confirmation.stellarTransactionId}`, '_blank')}
-                        className="text-blue-600 hover:text-blue-700"
+                        className="mobile-touch-target text-blue-600 hover:text-blue-700 p-1 rounded"
                       >
                         <ExternalLink size={16} />
                       </button>
@@ -435,22 +435,22 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
                   </div>
                 )}
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Amount Paid:</span>
-                  <span className="font-medium">₦{confirmation.total}</span>
+                  <span className="mobile-caption text-gray-600">Amount Paid:</span>
+                  <span className="mobile-body font-medium">₦{confirmation.total}</span>
                 </div>
               </div>
             )}
 
-            <div className="flex space-x-4">
+            <div className="mobile-button-group flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-4">
               <button
                 onClick={resetPayment}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg"
+                className="mobile-button flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg"
               >
                 Make Another Payment
               </button>
               <button
                 onClick={() => setShowHistory(true)}
-                className="flex-1 border border-gray-300 text-gray-700 font-medium px-4 py-3 rounded-lg hover:bg-gray-50"
+                className="mobile-button flex-1 border border-gray-300 text-gray-700 font-medium px-4 py-3 rounded-lg hover:bg-gray-50"
               >
                 View History
               </button>
@@ -460,13 +460,13 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
 
       case 'error':
         return (
-          <div className="text-center space-y-6">
+          <div className="text-center space-y-4 lg:space-y-6">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
               <XCircle className="w-8 h-8 text-red-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Failed</h2>
-              <p className="text-gray-600">We couldn't process your payment</p>
+              <h2 className="mobile-heading-1 text-2xl font-bold text-gray-900 mb-2">Payment Failed</h2>
+              <p className="mobile-body text-gray-600">We couldn't process your payment</p>
             </div>
 
             {error && (
@@ -481,16 +481,16 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
               </div>
             )}
 
-            <div className="flex space-x-4">
+            <div className="mobile-button-group flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-4">
               <button
                 onClick={resetPayment}
-                className="flex-1 border border-gray-300 text-gray-700 font-medium px-4 py-3 rounded-lg hover:bg-gray-50"
+                className="mobile-button flex-1 border border-gray-300 text-gray-700 font-medium px-4 py-3 rounded-lg hover:bg-gray-50"
               >
                 Start Over
               </button>
               <button
                 onClick={retryPayment}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg"
+                className="mobile-button flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg"
               >
                 Try Again
               </button>
@@ -504,9 +504,9 @@ export const PaymentIntegration: React.FC<PaymentIntegrationProps> = ({ classNam
   };
 
   return (
-    <div className={`max-w-2xl mx-auto ${className}`}>
+    <div className={`max-w-2xl mx-auto mobile-container ${className}`}>
       {error && currentStep === 'form' && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="mb-4 lg:mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
             <div className="text-sm text-red-800">

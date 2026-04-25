@@ -9,10 +9,13 @@
 @import './styles/loading-states.css';
 @import './styles/error-states.css';
 @import './styles/responsive-enhancements.css';
+@import './styles/mobile-optimizations.css';
 @import './styles/dark-mode-enhancements.css';
 @import './styles/tablet-responsive.css';
 @import './styles/print-styles.css';
 @import './styles/print-components.css';
+@import './styles/breadcrumbs.css';
+@import './styles/error-states-enhanced.css';
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
