@@ -10,7 +10,7 @@ import { sanitizeInput } from './middleware/inputSanitization';
 import { captureAuditContext, auditRateLimit, auditAuth, auditAdmin, auditPayment, auditDocument } from './middleware/audit';
 import { auditRoutes, fraudRoutes } from './routes/auditRoutes';
 import { swaggerSpec, getVersionedSwaggerSpec } from './swagger';
-import { apiVersioningConfig } from './config/apiVersioning';
+import { apiVersioningConfig } from './config/api-versioning';
 import { authController } from './controllers/AuthenticationController';
 import { userController } from './controllers/UserController';
 import { initializeCacheSystem } from './services/cache/CacheManager';

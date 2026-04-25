@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Allow all important pages
+Allow: /dashboard
+Allow: /payments
+Allow: /bills
+Allow: /help
+Allow: /faq
+Allow: /contact
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /settings/
+Disallow: /profile/edit
+
+# Sitemap location
+Sitemap: https://nepa.example.com/sitemap.xml
+
+# Crawl delay (optional, adjust as needed)
+Crawl-delay: 1
