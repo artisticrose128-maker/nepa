@@ -18,6 +18,7 @@ import { upload } from './middleware/upload';
 import { uploadDocument } from './controllers/DocumentController';
 import { getDashboardData, generateReport, exportData } from './controllers/AnalyticsController';
 import { applyPaymentSecurity, processPayment, getPaymentHistory, validatePayment } from './controllers/PaymentController';
+import exportRoutes from './routes/export';
 import { setupRateLimitRoutes } from './routes/rateLimitRoutes';
 import { performanceMonitor } from './services/performanceMonitoring';
 import analyticsService from './services/analytics';
@@ -277,6 +278,10 @@ app.get('/api/analytics/dashboard', apiKeyAuth, getDashboardData);
  */
 app.post('/api/analytics/reports', apiKeyAuth, generateReport);
 app.get('/api/analytics/export', apiKeyAuth, exportData);
+
+// 17. Export endpoints
+app.use('/api/export', exportRoutes);
+
 // Setup global error handling
 setupGlobalErrorHandling(app);
 
