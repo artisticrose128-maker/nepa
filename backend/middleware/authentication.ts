@@ -232,3 +232,6 @@ export const optionalAuth = async (req: AuthenticatedRequest, res: Response, nex
     next();
   }
 };
+
+// Alias for authenticate function for compatibility
+export const authenticateToken = authenticate;
