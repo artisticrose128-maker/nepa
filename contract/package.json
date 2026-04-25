@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "deploy": "ts-node scripts/deploy.ts",
+    "deploy:testnet": "STELLAR_NETWORK=testnet ts-node scripts/deploy.ts",
+    "deploy:mainnet": "STELLAR_NETWORK=mainnet ts-node scripts/deploy.ts",
+    "verify-contract": "ts-node src/verify.ts",
+    "monitor-events": "ts-node src/monitor.ts",
+    "integration-test": "ts-node tests/integration.test.ts"
   },
   "keywords": [
     "defi",
@@ -25,6 +32,11 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/lodash": "^4.14.0",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.0",
+    "dotenv": "^16.3.0"
   }
 }

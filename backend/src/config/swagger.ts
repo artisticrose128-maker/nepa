@@ -74,3 +74,37 @@ const options: swaggerJsdoc.Options = {
 };
 
 export const swaggerSpec = swaggerJsdoc(options);
+
+/**
+ * Generate versioned Swagger specifications
+ */
+export function getVersionedSwaggerSpec(version: string = 'v1'): any {
+  const versionedOptions = {
+    ...options,
+    definition: {
+      ...options.definition,
+      info: {
+        ...options.definition.info,
+        version: version === 'v2' ? '2.0.0' : '1.0.0',
+        title: `Nepa API ${version.toUpperCase()}`,
+        description: `API documentation for Nepa Billing System - ${version.toUpperCase()}`
+      },
+      servers: [
+        {
+          url: `http://localhost:3000/api/${version}`,
+          description: `Development server (${version})`
+        },
+        ...(version === 'v1' ? [{
+          url: 'https://api.nepa.com/v1',
+          description: 'Production server (v1)'
+        }] : [{
+          url: 'https://api.nepa.com/v2',
+          description: 'Production server (v2)'
+        }])
+      ]
+    },
+    apis: version === 'v2' ? ['./**/*.v2.ts', './**/v2/**/*.ts'] : ['./**/*.ts']
+  };
+  
+  return swaggerJsdoc(versionedOptions);
+}
